@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<th:block layout:fragment="content">
+    <div class="row mr-0 ml-0">
+        <div class="col-12 px-1 py-1 ">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-11 mt-2 mb-2 jumbotron-content">
+                        <h1 class="display-4">공통코드 관리</h1>
+                        <p class="lead">공통코드 목록</p>
+                        <hr class="my-4">
+                        <div class="row">
+                            <div class="col-12 mt-3 mb-3">
+                                <button type="button" class="btn btn-primary" th:onclick="move('/cmCode/add')">공통코드 추가</button>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div id="cm-code-list-content" th:object="${pageParam}" th:if="${pagination.totalItemCnt > 0}">
+                                    <div class="scroll-body">
+                                        <div class="scroll-content">
+                                            <table class="table custom-table">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">공통코드</th>
+                                                    <th scope="col">공통코드명</th>
+                                                    <th scope="col" class="w-40">설명</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <th:block th:each="code, i : ${list}" >
+                                                    <tr class="code-tr" th:onclick="select_loadList_cmCodeDTLList([[${code.CM_CODE}]], [[${i}]])">
+                                                        <td>[[${code.CM_CODE}]]</th>
+                                                        <td>[[${code.CM_CODE_NM}]]</td>
+                                                        <td>[[${code.CM_CODE_EXP}]]</td>
+                                                    </tr>
+                                                </th:block>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination justify-content-center">
+                                            <li class="page-item" th:if="${pagination.nextCnt > 1}">
+                                                <a class="page-link" th:onclick="loadList_cmCodeList(6)" aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+                                            <li th:each="page : ${#numbers.sequence(0,pagination.curpaginationCnt-1)}"
+                                                th:attr="class=${pagination.curPage - 1 == page ? 'page-item active' : 'page-item'}">
+                                                <a class="page-link" th:onclick="'loadList_cmCodeList(' + ${page+ 1} + ');'" th:text="${page + 1 + pagination.paginationCnt * (pagination.nextCnt-1)}"></a>
+                                            </li>
+                                            <li class="page-item" th:if="${
+                                            pagination.nextCnt * pagination.limit * pagination.paginationCnt < pagination.totalItemCnt
+                                        }">
+                                                <a class="page-link" th:onclick="loadList_cmCodeList(7)" aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    <div class="col-12 text-center">
+                                        <button type="button" class="btn btn-secondary cmCodeBtn" th:onclick="dataSaveAndMove('/cmCode/upd')" disabled>수정</button>
+                                        <button type="button" class="btn btn-secondary cmCodeBtn" th:onclick="deleteModal()" disabled>삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-8">
+                                <div id="cm-code-dtl-list-content" th:object="${pageParam}" th:if="${pagination2.totalItemCnt > 0}">
+                                    <div class="scroll-body">
+                                        <div class="scroll-content">
+                                            <table class="table custom-table">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">공통상세코드</th>
+                                                    <th scope="col">공통상세코드명</th>
+                                                    <th scope="col" class="w-40">설명</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <th:block th:each="code2, i : ${list2}" >
+                                                    <tr class="code-dtl-tr" th:onclick="select_cmCodeDTLOne([[${i}]])">
+                                                        <td>[[${code2.CM_DTL_CODE}]]</th>
+                                                        <td>[[${code2.CM_DTL_CODE_NM}]]</td>
+                                                        <td>[[${code2.CM_DTL_CODE_EXP}]]</td>
+                                                    </tr>
+                                                </th:block>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination justify-content-center">
+                                            <li class="page-item" th:if="${pagination2.nextCnt > 1}">
+                                                <a class="page-link" th:onclick="loadList_cmCodeDTLList(6)" aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+                                            <li th:each="page : ${#numbers.sequence(0,pagination2.curpaginationCnt-1)}"
+                                                th:attr="class=${pagination2.curPage - 1 == page ? 'page-item active' : 'page-item'}">
+                                                <a class="page-link" th:onclick="'loadList_cmCodeDTLList(' + ${page+ 1} + ');'" th:text="${page + 1 + pagination2.paginationCnt * (pagination2.nextCnt-1)}"></a>
+                                            </li>
+                                            <li class="page-item" th:if="${
+                                            pagination2.nextCnt * pagination2.limit * pagination2.paginationCnt < pagination2.totalItemCnt
+                                        }">
+                                                <a class="page-link" th:onclick="loadList_cmCodeDTLList(7)" aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    <div class="text-center" th:if="${pagination2.totalItemCnt > 0}">
+                                        <button type="button" class="btn btn-secondary cmCodeDtlAddBtn" th:onclick="addCmCodeDtl()" disabled>추가</button>
+                                        <button type="button" class="btn btn-secondary cmCodeDtlBtn" th:onclick="editCmCodeDtl()" disabled>수정</button>
+                                        <button type="button" class="btn btn-secondary cmCodeDtlBtn" th:onclick="deleteDtlModal()" disabled>삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        let cmCode = "";
+        let cmCodeDtl = "";
+        function loadList_cmCodeList(page){
+            let pagination = /*<![CDATA[*//*[[ ${pagination} ]]*/;/*]]*/
+            let url = "/cmCode/main/loadCmCodeList";
+            let type = "POST";
+            let replace = '#cm-code-list-content';
+            loadList(page, pagination, url, type, replace);
+        }
+
+        function loadList_cmCodeDTLList(page){
+            sessionStorage.setItem("dtlPage", page);
+            let pagination2 = /*<![CDATA[*//*[[ ${pagination2} ]]*//*]]*/;
+            let url = "/cmCode/main/loadCmCodeDtlList";
+            let type = "POST";
+            let replace = '#cm-code-dtl-list-content';
+            loadList(page, pagination2, url, type, replace);
+        }
+
+        async function select_loadList_cmCodeDTLList(searchNm, i){
+            sessionStorage.setItem("cmCode" ,cmCode);
+            $(".cmCodeBtn").attr("disabled", false);
+            cmCode = i.current.CM_CODE;
+            let index = 0;
+            for (const item of document.querySelectorAll('.code-tr') ) {
+                if(index == i.index) {
+                    item.classList.add('active');
+                } else if ( item.classList.contains('active') ) {
+                    item.classList.remove('active');
+                }
+                index++;
+            }
+
+            let page = 1;
+            let pagination2 = /*<![CDATA[*//*[[ ${pagination2} ]]*//*]]*/;
+            pagination2.searchNm = searchNm;
+            let url = "/cmCode/main/selectLoadCmCodeDtlList";
+            let type = "POST";
+            let replace = '#cm-code-dtl-list-content';
+            let promise = new Promise((resolve, reject) => {
+                resolve(loadList(page, pagination2, url, type, replace));
+            });
+
+            await promise.then( () => {
+                setTimeout( () => {
+                    $(".cmCodeDtlAddBtn").attr("disabled", false)
+                }, 50)
+            });
+
+
+
+        }
+
+        function dataSaveAndMove(link) {
+            sessionStorage.setItem("cmCode" ,cmCode);
+            location.href = link;
+        }
+
+        function deleteModal() {
+            sessionStorage.setItem("delete", sessionStorage.getItem("cmCode"));
+            $("#deleteTitle").text("공통코드 삭제");
+            $("#deleteText").text("공통코드 " + sessionStorage.getItem("delete") + "를 삭제하시겠습니까?");
+            $("#deleteConfirmBtn").text("확인");
+            $("#deleteCancleBtn").text("취소");
+            $("#deleteModal").modal("toggle");
+        }
+
+        function select_cmCodeDTLOne(i) {
+            sessionStorage.setItem("cmDtlCode", i.current.CM_DTL_CODE);
+            sessionStorage.setItem("cmDtlCodeNm", i.current.CM_DTL_CODE_NM);
+            sessionStorage.setItem("cmDtlCodeExp", i.current.CM_DTL_CODE_EXP);
+            $(".cmCodeDtlBtn").attr("disabled", false);
+            // cmCodeDtl = i.current.CM_DTL_CODE;
+            let index = 0;
+            for (const item of document.querySelectorAll('.code-dtl-tr') ) {
+                if(index == i.index) {
+                    item.classList.add('active');
+                } else if ( item.classList.contains('active') ) {
+                    item.classList.remove('active');
+                }
+                index++;
+            }
+        }
+
+        function deleteDtlModal() {
+            sessionStorage.setItem("deleteDtl", sessionStorage.getItem("cmCodeDtl"));
+            $("#deleteDtlTitle").text("공통상세코드 삭제");
+            $("#deleteDtlText").text("공통상세코드 " + sessionStorage.getItem("deleteDtl") + "를 삭제하시겠습니까?");
+            $("#deleteDtlConfirmBtn").text("확인");
+            $("#deleteDtlCancleBtn").text("취소");
+            $("#deleteDtlModal").modal("toggle");
+        }
+
+        function addCmCodeDtl() {
+            $("#cmDtlCode").val(cmCode);
+            $("#addCodeDtlModal").modal("toggle");
+        }
+        function editCmCodeDtl() {
+            $("#editCmDtlCode").val(sessionStorage.getItem("cmDtlCode"));
+            $("#editCmDtlCodeNm").val(sessionStorage.getItem("cmDtlCodeNm"));
+            $("#editCmDtlCodeExp").val(sessionStorage.getItem("cmDtlCodeExp"));
+            $("#editCodeDtlModal").modal("toggle");
+        }
+    </script>
+</th:block>
+</html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.CommonCodeMapper">
+    <insert id="insertCommonCode" parameterType="CommonCodeParam">
+        INSERT INTO tb_common_code (
+                             CM_CODE,
+                             CM_CODE_NM,
+                             CM_CODE_EXP,
+                             CRE_USER_ID,
+                             UPD_USER_ID
+                             )
+                             VALUES (
+                             #{cmCode}, #{cmCodeNm}, #{cmCodeExp}, #{creUserId}, #{updUserId}
+                             );
+    </insert>
+
+    <select id="selectCommonCode" parameterType="String" resultType="CommonCodeParam">
+        SELECT * FROM tb_common_code where CM_CODE = #{cmCode};
+    </select>
+
+    <select id="getCommonCodeList" parameterType="PageParam" resultType="map">
+        SELECT CM_CODE,
+               CM_CODE_NM,
+               CM_CODE_EXP,
+               USE_YN,
+               CRE_USER_ID,
+               UPD_USER_ID,
+               CRE_DT,
+               UPD_DT
+        FROM tb_common_code
+        WHERE USE_YN = 'Y'
+        ORDER BY LENGTH(CM_CODE), CM_CODE
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <select id="getTotalCnt" resultType="_int">
+        SELECT COUNT(*) FROM tb_common_code;
+    </select>
+    <update id="updateCommonCode" parameterType="CommonCodeParam">
+        UPDATE tb_common_code
+        SET CM_CODE_NM = #{cmCodeNm},
+            CM_CODE_EXP = #{cmCodeExp},
+            UPD_USER_ID = #{updUserId}
+        WHERE CM_CODE = #{cmCode}
+    </update>
+    <update id="deleteCommonCode" parameterType="String">
+        UPDATE tb_common_code
+        SET USE_YN = 'N',
+            UPD_USER_ID = #{id}
+        WHERE CM_CODE = #{cmCode}
+    </update>
+</mapper>

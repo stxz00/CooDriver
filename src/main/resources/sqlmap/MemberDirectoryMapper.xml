@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.MemberDirectoryMapper">
+    <insert id="createMemberDirectory" parameterType="MemberDirectoryParam">
+        INSERT INTO tb_member_directory
+               (
+                DIRECTORY_ID,
+                MEMBER_KEY,
+                DIRECTORY_NM,
+                VISUAL_DIRECTORY_LOCATION,
+                CRE_USER_ID,
+                UPD_USER_ID
+                )
+        VALUES (
+                #{directoryId},
+                #{memberKey},
+                #{directoryNm},
+                #{visualDirectoryLocation},
+                #{creUserId},
+                #{updUserId}
+               )
+    </insert>
+    <select id="selectMemberDirectoryById" parameterType="String" resultType="MemberDirectoryParam">
+        SELECT
+            DIRECTORY_ID,
+            MEMBER_KEY,
+            DIRECTORY_NM,
+            VISUAL_DIRECTORY_LOCATION,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT
+        FROM tb_member_directory
+        WHERE DIRECTORY_ID = #{directoryId}
+    </select>
+    <select id="selectMemberDirectoryListByLocation" parameterType="AccessPageParam" resultType="map">
+        SELECT
+            a.DIRECTORY_ID,
+            a.MEMBER_KEY,
+            a.DIRECTORY_NM,
+            a.VISUAL_DIRECTORY_LOCATION,
+            a.CRE_USER_ID,
+            a.UPD_USER_ID,
+            a.CRE_DT,
+            a.UPD_DT
+        FROM tb_member_directory a
+        WHERE a.MEMBER_KEY = #{memberKey}
+            AND a.VISUAL_DIRECTORY_LOCATION LIKE CONCAT(#{memberPath}, '%')
+            AND (LENGTH(a.VISUAL_DIRECTORY_LOCATION) - LENGTH(REPLACE(a.VISUAL_DIRECTORY_LOCATION, '/', ''))) = #{count}
+    </select>
+    <select id="selectMemberDirectoryListByMain" parameterType="AccessPageParam" resultType="map">
+        SELECT
+            a.DIRECTORY_ID,
+            a.MEMBER_KEY,
+            a.DIRECTORY_NM,
+            a.VISUAL_DIRECTORY_LOCATION,
+            a.CRE_USER_ID,
+            a.UPD_USER_ID,
+            a.CRE_DT,
+            a.UPD_DT
+        FROM tb_member_directory a
+        WHERE a.MEMBER_KEY = #{memberKey}
+          AND (LENGTH(a.VISUAL_DIRECTORY_LOCATION) - LENGTH(REPLACE(a.VISUAL_DIRECTORY_LOCATION, '/', ''))) = 1
+    </select>
+    <select id="selectMemberDirectoryMain" parameterType="String" resultType="MemberDirectoryParam">
+        SELECT
+            a.DIRECTORY_ID,
+            a.MEMBER_KEY,
+            a.DIRECTORY_NM,
+            a.VISUAL_DIRECTORY_LOCATION,
+            a.CRE_USER_ID,
+            a.UPD_USER_ID,
+            a.CRE_DT,
+            a.UPD_DT
+        FROM tb_member_directory a
+        WHERE a.MEMBER_KEY = #{memberKey}
+          AND (LENGTH(a.VISUAL_DIRECTORY_LOCATION) - LENGTH(REPLACE(a.VISUAL_DIRECTORY_LOCATION, '/', ''))) = 0
+    </select>
+    <select id="selectMemberDirectoryByMemberPath" parameterType="AccessPageParam" resultType="map">
+        SELECT
+            DIRECTORY_ID,
+            MEMBER_KEY,
+            DIRECTORY_NM,
+            VISUAL_DIRECTORY_LOCATION,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT
+        FROM tb_member_directory
+        WHERE MEMBER_KEY = #{memberKey}
+          AND VISUAL_DIRECTORY_LOCATION = #{memberPath}
+    </select>
+    <select id="selectMemberDirectoryIdByMemberKey" parameterType="String" resultType="String">
+        SELECT
+            DIRECTORY_ID
+        FROM tb_member_directory
+        WHERE MEMBER_KEY = #{memberKey}
+          AND VISUAL_DIRECTORY_LOCATION = 'drive'
+    </select>
+    <select id="selectMemberDirectoryListByLocationToParam" parameterType="AccessPageParam" resultType="MemberDirectoryParam">
+        SELECT
+            a.DIRECTORY_ID,
+            a.MEMBER_KEY,
+            a.DIRECTORY_NM,
+            a.VISUAL_DIRECTORY_LOCATION,
+            a.CRE_USER_ID,
+            a.UPD_USER_ID,
+            a.CRE_DT,
+            a.UPD_DT
+        FROM tb_member_directory a
+        WHERE a.MEMBER_KEY = #{memberKey}
+          AND a.VISUAL_DIRECTORY_LOCATION LIKE CONCAT(#{memberPath}, '%')
+          AND (LENGTH(a.VISUAL_DIRECTORY_LOCATION) - LENGTH(REPLACE(a.VISUAL_DIRECTORY_LOCATION, '/', ''))) > #{count}
+        ORDER BY (LENGTH(a.VISUAL_DIRECTORY_LOCATION) - LENGTH(REPLACE(a.VISUAL_DIRECTORY_LOCATION, '/', ''))) AND a.DIRECTORY_NM
+    </select>
+    <delete id="deleteDirectory" parameterType="MemberDirectoryParam">
+        DELETE FROM tb_member_directory
+        WHERE DIRECTORY_ID = #{directoryId}
+            AND MEMBER_KEY = #{memberKey}
+    </delete>
+    <update id="moveDirectoryToDirectory" parameterType="String">
+        UPDATE tb_member_directory
+        SET VISUAL_DIRECTORY_LOCATION = #{visualDirectoryLocation}
+        WHERE DIRECTORY_ID = #{directoryId}
+    </update>
+</mapper>

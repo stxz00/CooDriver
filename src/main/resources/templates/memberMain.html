@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html
+        lang="ko"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout2}"
+>
+<th:block layout:fragment="content">
+    <div class="row mr-0 ml-0" id="replaceSection">
+        <div class="col-12 px-1 py-1 ">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-11 mt-2 mb-2">
+                        <h1 class="display-4">테스크 목록</h1>
+                        <hr class="my-4">
+                        <div class="row">
+                            <div>처음 접속할 때 페이지 입니다.</div>
+                            <div>ajax로 로컬스토리지에 저장된 memberKey와 memberPath를 통해 페이지들을 replace하여 가져옵니다.</div>
+                            <div>이동할때마다 memberPath값을 바꾸고 나서 이동해주세요. 새로고침을 해도 path값을 통해 불러옵니다.</div>
+                        </div>
+                        <button type="button"
+                                class="btn rounded-pill "
+                                style="width: 200px; background-color: crimson;"
+                                th:onclick="driveMain()">
+                            <span style="font-weight: 600; color: white;">드라이브 이동</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            $(document).ready(function() {
+                cookieRemove(1);
+            });
+            // $(document).ready(function() {
+            //     let loadParam = {
+            //         memberKey: localStorage.getItem("memberKey"),
+            //         memberPath: localStorage.getItem("memberPath")
+            //     }
+            //     if ( loadParam.memberPath !== "memberMain"){
+            //         let promise = new Promise((resolve, reject) => {
+            //             resolve(memberLoadPage());
+            //         });
+            //         promise.then();
+            //     }
+            // });
+            function memberLoadPage() {
+                let accessPageParam = {
+                    memberKey: localStorage.getItem("memberKey"),
+                    memberPath: localStorage.getItem("memberPath")
+                }
+
+                $.ajax({
+                    url: "/main/loadAccessPage",
+                    type: "POST",
+                    data: accessPageParam,
+                })
+                    .done( (data)=> {
+                        $("#replaceSection").replaceWith(data);
+                    })
+                    .fail( (a,b,c) => {
+                        $("#cancleTitle").text("베이직 멤버 가입 실패");
+                        $("#cancleText").text("베이직 멤버를 가입하는데 실패하였습니다. 입력한 내용을 확인해주세요.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    });
+            }
+            function driveMain() {
+                localStorage.setItem("memberPath", "drive/main");
+                memberLoadPage();
+            }
+        </script>
+    </div>
+</th:block>
+</html>

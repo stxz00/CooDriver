@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.MemberUserListMapper">
+    <select id="selectMemberKeyByUserId" parameterType="String" resultType="String">
+        SELECT
+            MEMBER_KEY
+        FROM tb_member_user_list
+        WHERE USER_ID = #{userId}
+            AND USE_YN = 'Y'
+    </select>
+
+    <insert id="insertMember" parameterType="MemberUserListParam">
+        INSERT INTO tb_member_user_list (MEMBER_KEY, USER_ID, POSITION, INV_YN) values (#{memberKey}, #{userId}, #{position}, #{invYn});
+    </insert>
+
+    <select id="selectMemberByUserId" parameterType="String" resultType="MemberUserListParam">
+        SELECT * FROM tb_member_user_list WHERE USER_ID = #{id};
+    </select>
+    <select id="selectUsers" parameterType="String" resultType="MemberUserListParam">
+        SELECT * FROM tb_member_user_list WHERE MEMBER_KEY = #{key};
+    </select>
+    <select id="selectMulpByUserIdAndAddr" parameterType="hashmap" resultType="MemberUserListParam">
+        SELECT * FROM tb_member_user_list tmul
+        WHERE
+                tmul.MEMBER_KEY = (select tm.MEMBER_KEY
+                                   from tb_member tm
+                                   where tm.MEMBER_ADDRESS = #{addr})
+          and tmul.USER_ID = (select tu.USER_ID
+                              from tb_user tu
+                              where tu.USER_ID = #{id}
+                                and tu.USER_PW = #{pw});
+    </select>
+    <select id="selectMulpByUserIdAndKey" parameterType="hashmap" resultType="MemberUserListParam">
+        SELECT * FROM tb_member_user_list tmul
+        WHERE tmul.MEMBER_KEY = #{key}
+          and tmul.USER_ID = #{id};
+    </select>
+    <select id="selectMulpByUserIdAndPw" parameterType="hashmap" resultType="MemberUserListParam">
+        SELECT * FROM tb_member_user_list tmul
+        WHERE
+          tmul.USER_ID = (select tu.USER_ID
+                              from tb_user tu
+                              where tu.USER_ID = #{id}
+                                and tu.USER_PW = #{pw});
+    </select>
+    <select id="selectUserForAdmin" parameterType="String" resultType="hashmap">
+        select tm.MEMBER_NM, tui.USER_NM, tui.USER_ID, tmul.DEPT, tmul.RANK, tui.USER_EMAIL, tui.HP_NO,
+               date_format(tmul.CRE_DT, '%Y-%m-%d %T') as CRE_DT, tmul.INV_YN, tmul.USE_YN, tmul.POSITION
+        from tb_member_user_list tmul
+                 join tb_member tm on tmul.MEMBER_KEY = tm.MEMBER_KEY
+                 join tb_user_info tui on tui.USER_ID = tmul.USER_ID
+        where tm.MEMBER_KEY = #{key};
+    </select>
+    <select id="selectUserForAdminUser" parameterType="String" resultType="hashmap">
+        select tm.MEMBER_NM, tui.USER_NM, tui.USER_ID, tmul.DEPT, tmul.RANK, tui.USER_EMAIL, tui.HP_NO,
+               date_format(tmul.CRE_DT, '%Y-%m-%d %T') as CRE_DT, tmul.POSITION
+        from tb_member_user_list tmul
+                 join tb_member tm on tmul.MEMBER_KEY = tm.MEMBER_KEY
+                 join tb_user_info tui on tui.USER_ID = tmul.USER_ID
+        where tm.MEMBER_KEY = #{key} and tmul.USE_YN = 'Y' and tmul.INV_YN = 'Y';
+    </select>
+    <select id="selectUserForAdminBan" parameterType="String" resultType="hashmap">
+        select tm.MEMBER_NM, tui.USER_NM, tui.USER_ID, tmul.DEPT, tmul.RANK, tui.USER_EMAIL, tui.HP_NO,
+               date_format(tmul.CRE_DT, '%Y-%m-%d %T') as CRE_DT, tmul.USE_YN, tmul.INV_YN, tmul.POSITION
+        from tb_member_user_list tmul
+                 join tb_member tm on tmul.MEMBER_KEY = tm.MEMBER_KEY
+                 join tb_user_info tui on tui.USER_ID = tmul.USER_ID
+        where tm.MEMBER_KEY = #{key} and tmul.USE_YN = 'N' and tmul.INV_YN = 'Y';
+    </select>
+    <select id="selectUserForAdminInv" parameterType="String" resultType="hashmap">
+        select tui.USER_ID, tui.USER_NM, tui.USER_EMAIL, date_format(tmul.CRE_DT, '%Y-%m-%d %T') as CRE_DT
+        from tb_member_user_list tmul
+                 join tb_user_info tui on tui.USER_ID = tmul.USER_ID
+        where tmul.MEMBER_KEY = #{key} and tmul.INV_YN = 'N';
+    </select>
+    <update id="invUser" parameterType="hashmap">
+        UPDATE tb_member_user_list tmul SET tmul.INV_YN = 'Y' WHERE tmul.USER_ID = #{id} AND tmul.MEMBER_KEY = #{key};
+    </update>
+    <update id="banUser" parameterType="hashmap">
+        UPDATE tb_member_user_list tmul SET tmul.USE_YN = #{yn} WHERE tmul.USER_ID = #{id} AND tmul.MEMBER_KEY = #{key};
+    </update>
+    <update id="posUpdate" parameterType="hashmap">
+        UPDATE tb_member_user_list tmul SET tmul.POSITION = #{pos} WHERE tmul.USER_ID = #{id} AND tmul.MEMBER_KEY = #{key};
+    </update>
+    <delete id="deleteMemberUser" parameterType="hashmap">
+        DELETE from tb_member_user_list where MEMBER_KEY = #{key} and USER_ID = #{id};
+    </delete>
+</mapper>

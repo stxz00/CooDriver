@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout2}">
+<th:block layout:fragment="content">
+  <div class="container-lg mt-5 mb-5" id="content-body">
+    <input type="hidden" th:value="${key}" id="taskKey">
+    <div class="col-12 px-1 py-1">
+      <div class="jumbotron border-3 border-dark">
+        <div class="row align-middle">
+          <div class="col-12 mt-5 mb-5 px-1 jumbotron-content" id="content-users">
+            <button type="button" class="btn btn-outline-secondary" th:disabled="${taskPos == 0}" th:attr="onclick=|userInvModalOpen('${key}')|" style="width:100%;">Invite</button>
+            <div class="card border-dark my-1 py-1">
+              <div class="card-body m-0" id="taskDetailUserTable">
+                <table cellpadding="0" class="table" cellspacing="0"  style="width: 100%">
+                  <colgroup>
+                    <col width="30%">
+                    <col width="40%">
+                    <col>
+                  </colgroup>
+                  <thead>
+                  <tr>
+                    <th>
+                      UserNm
+                    </th>
+                    <th>
+                      UserId
+                    </th>
+                    <th>
+                      Position
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="user : ${users}">
+                    <td th:text="${user.USER_NM}"></td>
+                    <td th:text="${user.USER_ID}"></td>
+                    <td th:text="${user.POSITION == 0 ? '일반' : '관리자'}"></td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 mt-5 mb-5 px-1 jumbotron-content" id="content-board">
+            <button type="button" class="btn btn-outline-secondary" onclick="modalOn('#insertBoardModal')" style="width:100%;">Write</button>
+            <div class="card border-dark my-1" th:each="content, i : ${contents}">
+              <div class="card-header">
+                <div class="row g-0 m-0 p-0 justify-content-between">
+                  <div class="col-auto mt-auto mb-auto">
+                    <strong th:text="${content.boardUser}"></strong>
+                    <span th:text="${content.creDt}"></span>
+                  </div>
+                  <div class="col-auto" th:if="${userId == content.boardUser}">
+                    <button type="button" class="btn btn-outline-secondary rounded-circle btn-sm bg-white btn-cmt-submit" th:attr="onclick=|modifyBoardModalOn('${content.boardKey}')|"><i class="xi-pen"></i></button>
+                    <button type="button" class="btn btn-outline-secondary rounded-circle btn-sm bg-white btn-cmt-submit" th:attr="onclick=|removeBoard('${content.boardKey}')|"><i class="xi-close"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title" th:text="${content.boardTitle}"></h5>
+                <hr>
+                <p class="card-text" th:text="${content.boardContent}"></p>
+                <div class="card border-success border-1" th:each="attch, i : ${content.attchFiles}" th:id="${content.grpId} + '_Content'" th:onclick="downloadFile([[${i}]])" style="cursor: pointer; border-style: dashed">
+                  <div class="card-body">
+                    <h5 class="card-title" th:text="${attch.fileNm}"></h5>
+                    <p class="card-text" th:text="${attch.fileType}"></p>
+                    <p class="card-text"
+                       th:text="
+                       ${
+                         attch.fileSize < 1024 ? attch.fileSize + 'Byte' :
+                         attch.fileSize < 1024*1024 ? attch.fileSize/1024 + ' KB' :
+                         attch.fileSize < 1024*1024/1024 ? attch.fileSize/1024/1024 + ' MB' :
+                         attch.fileSize/1024/1024/1024 + ' GB'
+                    }"></p>
+
+                  </div>
+                </div>
+                <hr>
+                <div class="jumbotron border-1 rounded-1 border-dark" th:if="${!#lists.isEmpty(content.cmts)}">
+                  <div class="card m-1 border-dark " th:each="cmt, i : ${content.cmts}" th:id="${content.boardKey} + '_Content'">
+                    <div class="card-header">
+                      <div class="row g-0 m-0 p-0 justify-content-between">
+                        <div class="col-auto mt-auto mb-auto">
+                          <strong th:text="${cmt.cmtUser}"></strong>
+                          <span th:text="${cmt.creDt}"></span>
+                        </div>
+                        <div class="col-auto" th:if="${userId == cmt.cmtUser}">
+                          <button type="button" class="btn btn-outline-secondary rounded-circle btn-sm bg-white btn-cmt-submit" th:attr="onclick=|modifyCmtModalOn(${cmt.cmtKey})|"><i class="xi-pen"></i></button>
+                          <button type="button" class="btn btn-outline-secondary rounded-circle btn-sm bg-white btn-cmt-submit" th:attr="onclick=|removeCmt(${cmt.cmtKey})|"><i class="xi-close"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <p class="card-text" th:text="${cmt.cmtContent}"></p>
+                      <div class="card border-success border-1" th:each="cmtAttch, i : ${cmt.attchFiles}" th:id="${cmt.grpId} + '_Content'" th:onclick="downloadFile([[${i}]])" style="cursor: pointer; border-style: dashed">
+                        <div class="card-body">
+                          <h5 class="card-title" th:text="${cmtAttch.fileNm}"></h5>
+                          <p class="card-text" th:text="${cmtAttch.fileType}"></p>
+                          <p class="card-text"
+                             th:text="
+                       ${
+                         cmtAttch.fileSize < 1024 ? cmtAttch.fileSize + 'Byte' :
+                         cmtAttch.fileSize < 1024*1024 ? cmtAttch.fileSize/1024 + ' KB' :
+                         cmtAttch.fileSize < 1024*1024/1024 ? cmtAttch.fileSize/1024/1024 + ' MB' :
+                         cmtAttch.fileSize/1024/1024/1024 + ' GB'
+                    }"></p>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <div class="card-footer">
+                <div class="row g-1 p-0">
+                  <div th:class="${'col-10'}" ondragover="dragover(event)" ondragenter="(event)">
+                    <div th:class="${'cmt-upload-space display-none upd-' + content.boardKey}" th:id="${'upd-' + content.boardKey}" ondragleave="dragLeave(event)" ondrop="drop(event)"
+                         style="border:2px solid #5B6DCD; border-radius: 3px; position: absolute; width: 76.7%; height: 100%;
+                                text-align: center; vertical-align: middle; background: rgba(255, 255, 255, 0.8);">
+                      <img th:class="${'upd-' + content.boardKey}" th:id="cmt-upload-content" style="position: relative; display: inline-block; width: 20px; height: 20px; margin: auto; z-index: 9;" th:src="@{/img/dropbox.png}"></img>
+                      <div th:class="${'upd-' + content.boardKey}" style="position: relative; display: inline-block; z-index: 9; margin-top: 10px;">첨부할 파일, 이미지 등을 드래그하여 놓아주세요</div>
+                    </div>
+                    <textarea class="form-control" rows="1" th:id="cmt + ${content.boardKey}"></textarea>
+                  </div>
+                  <div class="col-2">
+                    <button type="button" class="btn btn-outline-secondary bg-white btn-cmt-submit" th:attr="onclick=|commitCmt('${content.boardKey}')|" style="width:100%; height:100%;">submit</button>
+                  </div>
+                </div>
+                <div class="row cmt-upload-file-list file-list-row display-none" th:id="${'flr-' + content.boardKey}">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script th:inline="javascript">
+      autosize($('textarea'));
+      let invUsers = new Array();
+
+      function pageLoadWithData(url, r_url, data) {
+        data["url"] = url;
+        $.ajax({
+          url: '/' + r_url,
+          type: "POST",
+          data: data
+        }).done(function (page) {
+          $("#content-body").replaceWith(page);
+          filesToUpload = [];
+        });
+      }
+      async function commitCmt(key){
+        let grpId = await checkFileAndGrpUpload();
+        console.log("grpId : " + grpId);
+
+        let id = "cmt" + key;
+        let content = document.getElementById(id).value;
+        let url = "taskDetail";
+        let r_url = "board/commitCmt";
+        let type = "POST";
+        let taskKey = /*<![CDATA[*//*[[ ${key} ]]*/;/*]]*/
+        let data =
+                {
+                  "cmtContent" : content,
+                  "cmtBoard" : key,
+                  "url" : url,
+                  "taskKey" : taskKey,
+                  "grpId" : grpId,
+                };
+
+        pageLoadWithData(url, r_url, data);
+        sizeOfFilesToUpload = 0;
+        filesToUpload = [];
+        if(cmtFileListRow !== "" && cmtFileListRow !== null && cmtFileListRow !== undefined){
+          try {
+            cmtFileListRow.innerHTML = "";
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        grpFileIdList = [];
+      }
+
+      function userInvModalOpen(taskKey){
+        invUsers.splice(0);
+        $("#userInvModalListBody").html("");
+        $.ajax({
+          url: '/team/' + localStorage.getItem("memberAddress") + '/admin/taskModal',
+          type: "POST",
+          data: {
+            taskKey : taskKey
+          }
+        }).done(function (users) {
+          let text = "";
+          for(let i = 0; i < users.length; i++){
+            let item = users[i];
+
+            text +=
+                    `<tr onclick="addInvUser('${item.USER_ID}')">
+                      <td>${item.USER_NM}</td>
+                      <td>${item.USER_ID}</td>
+                    </tr>`;
+          }
+          $("#userInvModalBody").html(text);
+
+        });
+        modalOn('#userInviteModal');
+      }
+
+      function addInvUser(userId){
+        if(invUsers.includes(userId)){
+          for(let i = 0; i < invUsers.length; i++){
+            if(invUsers[i] == userId){
+              invUsers.splice(i,1);
+              break;
+            }
+          }
+        }else{
+          invUsers.push(userId);
+        }
+
+        let text = "";
+
+        for(let i = 0; i < invUsers.length; i++){
+          text += `<button class="badge bg-secondary m-1" onclick="addInvUser('${invUsers[i]}')">${invUsers[i]}</button>`
+        }
+
+        $("#userInvModalListBody").html(text);
+
+      }
+
+      function userInviteForTask(){
+        let link = "/replace/" + localStorage.getItem("memberAddress") + "/admin/invUserTask";
+
+        let taskKey = $("#taskKey").val();
+        let sendData = {"taskKey" : taskKey, "users" : invUsers}
+       $.ajax({
+          type: "POST",
+          url: link,
+          data: sendData
+        }).done((data) => {
+          $('#taskDetailUserTable').replaceWith(data);
+          $('#userInviteModal').modal("toggle");
+        });
+      }
+
+      function dragover(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let ele = $("#" + e.target.id);
+        let id = e.target.id;
+        if( id.indexOf("cmt") > -1 ) {
+          id = id.replace("cmt", "");
+          $("#upd-" + id).css("height", ele.css("height"));
+
+          let calc = Number(ele.css("height").replace("px", ""))/2 - 20;
+          $("#upd-" + id + " #cmt-upload-content").css("top", calc + "px");
+          $("#upd-" + id + " div").css("top", calc + "px");
+          document.getElementById("upd-" + id).classList.remove("display-none");
+          // console.log(document.querySelector("#upd-" + id + " #cmt-upload-content") );
+        }
+      }
+
+      function dragenter (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      function dragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let id = e.target.id;
+        if( id.indexOf("upd-") > -1 ) {
+          document.getElementById(id).classList.add("display-none");
+        }
+      }
+
+      let droppedId = "";
+      let cmtFileListRow = "";
+      function drop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        let id = "";
+
+        let classList = e.target.classList;
+
+        for ( let list of classList ) {
+          if ( list.startsWith("upd-") ) {
+            id = list;
+          }
+        }
+
+        console.log("id",id);
+
+        // 파일을 드롭한 곳이 기존에 올린곳과 다르다면 초기화
+        if( droppedId !== id ) {
+          droppedId = id;
+          sizeOfFilesToUpload = 0;
+          filesToUpload = [];
+          if(cmtFileListRow !== "" && cmtFileListRow !== null && cmtFileListRow !== undefined){
+            try {
+              cmtFileListRow.innerHTML = "";
+            } catch (e) {
+              console.log(e);
+            }
+          }
+        }
+
+        let flrRow = '#flr-' + id.replace("upd-", "");
+
+        console.log("flrRpw", flrRow);
+        cmtFileListRow = document.querySelector(flrRow);
+
+        // 드롭된 파일 리스트 가져오기
+        let files = [...e.dataTransfer?.files];
+        filesLength = files.length;
+        console.log(files);
+
+        let droppedFilesSize = 0;
+
+        for ( let file of files ) {
+          droppedFilesSize += file.size;
+          if(file.size == 0 && (file.type == "" || file.type == null)) {
+            $("#cancleTitle").text("폴더 업로드");
+            $("#cancleText").text("폴더는 압축하여 첨부하시기 바랍니다.");
+            $("#cancleBtn").text("확인");
+            $("#cancleModal").modal("toggle");
+            document.getElementById(id).classList.add("display-none");
+            return;
+          }
+        }
+
+        let promise = new Promise( (resolve, reject) => {
+          resolve(driveSize())
+        })
+
+        promise.then( (size) => {
+          let expectedSize = sizeOfFilesToUpload + droppedFilesSize + size.usedSize;
+          let totalUsualSize = size.totalUsualSize*1024*1024*1024;
+
+          if(expectedSize <= totalUsualSize) {
+            sizeOfFilesToUpload = sizeOfFilesToUpload + droppedFilesSize;
+
+            for ( let file of files ) {
+              filesToUpload.push(file);
+
+              let fileSize = file.size;
+              if( fileSize < 1024 ) {
+                fileSize = fileSize + " Byte";
+              } else if( fileSize/1024 < 1024 ) {
+                fileSize = (fileSize/1024).toFixed(2) + " KB";
+              } else if( fileSize/1024/1024 < 1024 ) {
+                fileSize = (fileSize/1024/1024).toFixed(2) + " MB";
+              } else {
+                fileSize = (fileSize/1024/1024/1024).toFixed(2) + " GB";
+              }
+
+              cmtFileListRow.innerHTML +=
+                      `<div class="col-12 stop-drag file-list-col my-1" id="${file.lastModified}">
+                                <div class="stop-drag" style="display: inline-block; width: 30px; height: 30px;">
+                                    <img class="stop-drag" src="http://localhost:8072/img/file_icon.png" style="width: 100%; margin:auto;"/>
+                                </div>
+                                <div
+                                    style="display: inline-block; vertical-align: middle; font-size: 13px; margin-left: 10px; width:calc(100% - 50px)">
+                                    <div style="display: inline-block;">
+                                        <div>${file.name}</div>
+                                        <div style="color: #999">${fileSize}</div>
+                                    </div>
+                                    <button type="button" class="file-list-delete-button stop-drag" draggable="false" style="display: inline-block; padding: 0px;
+                                        float: right; background-color: transparent; border-radius: 5px; border: 1px solid #ddd;"
+                                        onclick="removeFileList(event)"
+                                    >
+                                        <i class="xi-trash-o delete-icon" data-index="${file.lastModified}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            `
+            }
+            console.log( filesToUpload );
+            cmtFileListRow.classList.remove( "display-none" );
+
+          } else {
+            $("#cancleTitle").text("드라이브 용량 초과");
+            $("#cancleText").text("사용하실 수 있는 개인 드라이브 저장 용량을 초과하였습니다.");
+            $("#cancleBtn").text("확인");
+            $("#cancleModal").modal("toggle");
+          }
+        })
+        document.getElementById(id).classList.add("display-none");
+      }
+
+      function removeBoard(boardKey){
+        let link = "/replace/" + localStorage.getItem("memberAddress") + "/removeBoard";
+        $.ajax( {
+          url: link,
+          type: "POST",
+          data: {
+            boardKey : boardKey,
+            taskKey : $("#taskKey").val()
+          }
+        }).done((list)=>{
+          $("#content-board").replaceWith(list);
+        });
+      }
+
+      function removeCmt(cmtKey){
+        let link = "/replace/" + localStorage.getItem("memberAddress") + "/removeCmt";
+        $.ajax( {
+          url: link,
+          type: "POST",
+          data: {
+            cmtKey : cmtKey,
+            taskKey : $("#taskKey").val()
+          }
+        }).done((list)=>{
+          $("#content-board").replaceWith(list);
+        });
+      }
+
+      let modifyData = "";
+      let modifyGrpId = "";
+
+      function modifyBoardModalOn(boardKey) {
+        //초기화
+        modifyData = "";
+        selectFileIdList = []; // 해당 보드에서 삭제할 파일 아이디 리스트
+        filesToUpload = [];
+        modifyGrpId = "";
+        modifyListRow.innerHTML = "";
+        grpFileIdList = [];
+
+        $.ajax({
+          url: "/board/loadOne",
+          type: "POST",
+          data: boardKey,
+          dataType: "json",
+          contentType: "application/json; charset=utf-8",
+        }).done( (data) => {
+          console.log(data);
+          modifyData = data;
+          modifyGrpId = modifyData.grpId;
+          $("#modifyBoardTitleText").val(modifyData.boardTitle);
+          $("#modifyBoardContent").val(modifyData.boardContent);
+
+          if( modifyData.attchFiles !== null ) {
+            for ( let file of modifyData.attchFiles ) {
+              let fileSize = file.fileSize;
+              if( fileSize < 1024 ) {
+                fileSize = fileSize + " Byte";
+              } else if( fileSize/1024 < 1024 ) {
+                fileSize = (fileSize/1024).toFixed(2) + " KB";
+              } else if( fileSize/1024/1024 < 1024 ) {
+                fileSize = (fileSize/1024/1024).toFixed(2) + " MB";
+              } else {
+                fileSize = (fileSize/1024/1024/1024).toFixed(2) + " GB";
+              }
+
+              modifyListRow.innerHTML +=
+                      `<div class="col-12 stop-drag file-list-col my-1" id="${'mod-' +file.fileId}">
+                                <div class="stop-drag" style="display: inline-block; width: 30px; height: 30px;">
+                                    <img class="stop-drag" src="http://localhost:8072/img/file_icon.png" style="width: 100%; margin:auto;"/>
+                                </div>
+                                <div
+                                    style="display: inline-block; vertical-align: middle; font-size: 13px; margin-left: 10px; width:calc(100% - 50px)">
+                                    <div style="display: inline-block;">
+                                        <div>${file.fileNm}</div>
+                                        <div style="color: #999">${fileSize}</div>
+                                    </div>
+                                    <button type="button" class="file-list-delete-button stop-drag" draggable="false" style="display: inline-block; padding: 0px;
+                                        float: right; background-color: transparent; border-radius: 5px; border: 1px solid #ddd;"
+                                        data-index="${'mod-' +file.fileId}"
+                                        onclick="removeModifyFileList( event )"
+                                    >
+                                        <i class="xi-trash-o delete-icon" data-index="${'mod-' +file.fileId}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            `
+            }
+            console.log(modifyListRow)
+            modifyListRow.classList.remove("display-none");
+          }
+
+        }).fail( (a,b,c) => {
+          console.log(a,b,c);
+        })
+        $("#modifyBoardModal").modal("toggle");
+      }
+
+      function modifyCmtModalOn(cmtKey) {
+        console.log("cmtKey", cmtKey);
+        //초기화
+        modifyData = "";
+        selectFileIdList = []; // 해당 보드에서 삭제할 파일 아이디 리스트
+        filesToUpload = [];
+        modifyGrpId = "";
+        modifyCmtListRow.innerHTML = "";
+        grpFileIdList = [];
+
+        $.ajax({
+          url: "/board/cmt/loadOne",
+          type: "POST",
+          data: JSON.stringify(cmtKey),
+          dataType: "json",
+          contentType: "application/json; charset=utf-8",
+        }).done( (data) => {
+          console.log(data);
+          modifyData = data;
+          modifyGrpId = modifyData.grpId;
+          $("#modifyCmtContent").val(modifyData.cmtContent);
+
+          if( modifyData.attchFiles !== null ) {
+            for ( let file of modifyData.attchFiles ) {
+              let fileSize = file.fileSize;
+              if( fileSize < 1024 ) {
+                fileSize = fileSize + " Byte";
+              } else if( fileSize/1024 < 1024 ) {
+                fileSize = (fileSize/1024).toFixed(2) + " KB";
+              } else if( fileSize/1024/1024 < 1024 ) {
+                fileSize = (fileSize/1024/1024).toFixed(2) + " MB";
+              } else {
+                fileSize = (fileSize/1024/1024/1024).toFixed(2) + " GB";
+              }
+
+              modifyCmtListRow.innerHTML +=
+                      `<div class="col-12 stop-drag file-list-col my-1" id="${'mod-' +file.fileId}">
+                                <div class="stop-drag" style="display: inline-block; width: 30px; height: 30px;">
+                                    <img class="stop-drag" src="http://localhost:8072/img/file_icon.png" style="width: 100%; margin:auto;"/>
+                                </div>
+                                <div
+                                    style="display: inline-block; vertical-align: middle; font-size: 13px; margin-left: 10px; width:calc(100% - 50px)">
+                                    <div style="display: inline-block;">
+                                        <div>${file.fileNm}</div>
+                                        <div style="color: #999">${fileSize}</div>
+                                    </div>
+                                    <button type="button" class="file-list-delete-button stop-drag" draggable="false" style="display: inline-block; padding: 0px;
+                                        float: right; background-color: transparent; border-radius: 5px; border: 1px solid #ddd;"
+                                        data-index="${'mod-' +file.fileId}"
+                                        onclick="removeModifyFileList( event )"
+                                    >
+                                        <i class="xi-trash-o delete-icon" data-index="${'mod-' +file.fileId}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            `
+            }
+            console.log(modifyCmtListRow)
+            modifyCmtListRow.classList.remove("display-none");
+          }
+
+        }).fail( (a,b,c) => {
+          console.log(a,b,c);
+        })
+        $("#modifyCmtModal").modal("toggle");
+      }
+    </script>
+  </div>
+
+</th:block>
+</html>

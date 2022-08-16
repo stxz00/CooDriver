@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.AttchFileMapper">
+    <insert id="insertAttchFile" parameterType="AttchFileParam">
+        INSERT INTO tb_attch_file (
+            FILE_ID,
+            FILE_TYPE,
+            FILE_PATH,
+            REAL_FILE_NM,
+            FILE_NM,
+            FILE_SIZE,
+            MEMBER_KEY,
+            FILE_USAGE,
+            DIRECTORY_ID,
+            CRE_USER_ID,
+            UPD_USER_ID
+        <if test="onlyDrive != null and onlyDrive != ''">
+            ,ONLY_DRIVE
+        </if>
+        )
+        VALUES (
+                   #{fileId},
+                   #{fileType},
+                   #{filePath},
+                   #{realFileNm},
+                   #{fileNm},
+                   #{fileSize},
+                   #{memberKey},
+                   #{fileUsage},
+                   #{directoryId},
+                   #{creUserId},
+                   #{updUserId}
+        <if test="onlyDrive != null and onlyDrive != ''">
+                   ,#{onlyDrive}
+        </if>
+               );
+    </insert>
+    <select id="selectAttchFileListByDirectoryId" parameterType="String" resultType="AttchFileParam">
+        SELECT
+            FILE_ID,
+            FILE_TYPE,
+            FILE_PATH,
+            REAL_FILE_NM,
+            FILE_NM,
+            FILE_SIZE,
+            MEMBER_KEY,
+            FILE_USAGE,
+            DIRECTORY_ID,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT,
+            ONLY_DRIVE
+        FROM tb_attch_file
+        WHERE DIRECTORY_ID = #{directoryId}
+          AND FILE_USAGE = 'drive'
+        ORDER BY FILE_NM
+    </select>
+    <select id="selectAttchFileListByMemberKey" parameterType="String" resultType="AttchFileParam">
+        SELECT
+            FILE_ID,
+            FILE_TYPE,
+            FILE_PATH,
+            REAL_FILE_NM,
+            FILE_NM,
+            FILE_SIZE,
+            MEMBER_KEY,
+            FILE_USAGE,
+            DIRECTORY_ID,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT,
+            ONLY_DRIVE
+        FROM tb_attch_file
+        WHERE MEMBER_KEY = #{memberKey}
+          AND FILE_USAGE = 'drive'
+        ORDER BY FILE_NM
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndFileType" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE = #{fileType}
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileByFileId" parameterType="String" resultType="AttchFileParam">
+        SELECT
+            FILE_ID,
+            FILE_TYPE,
+            FILE_PATH,
+            REAL_FILE_NM,
+            FILE_NM,
+            FILE_SIZE,
+            MEMBER_KEY,
+            FILE_USAGE,
+            DIRECTORY_ID,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT,
+            ONLY_DRIVE
+        FROM tb_attch_file
+        WHERE FILE_ID = #{fileId}
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndPdf" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE = 'PDF'
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndHwp" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN ('HWP', 'HWPX', 'HWT')
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndPpt" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN
+            (
+            'PPT', 'PPTX', 'PPTM', 'POTX', 'POTM', 'POT', 'PPSX', 'PPSM', 'PPS', 'PPAM', 'PPA'
+            )
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndExcel" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN
+            (
+            'XLSX', 'XLSM', 'XLSB', 'XLTX', 'XLTM', 'XLS', 'XLT', 'XML', 'XLAM', 'XLA', 'XLW', 'XLR', 'XPS',
+            'DEX', 'DIS', 'FCS', 'FM', 'FP', 'KSP', 'NB', 'NUMBERS', 'OTS', 'QPW', 'SDC', 'SXC', 'WK', 'WKS', 'WQ1', 'WQ2',
+            'XL', 'XLSHTML', 'XLSMHTML', 'XLTHTML'
+            )
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndDoc" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN
+            (
+            'DOCX', 'DOCM', 'DOC', 'DOTX', 'DOTM', 'DOT'
+            )
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndImg" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN
+            (
+            'PNG', 'JPG', 'JPEG', 'BMP', 'GIF', 'JFIF', 'JPE', 'JIF', 'JFI', 'JP2', 'TIFF', 'TIF', 'TIFF-FX',
+            'PNGF', 'HEIF', 'HEIC', 'HEIF-SEQUENCE', 'HEIC-SEQUENCE', 'BPG', 'PSD', 'TGA', 'AI', 'SVG', 'EPS',
+            'A2C', 'AN8', 'ANIM', 'ANM', 'AOI', 'ATM', 'B3D', 'BIO', 'BIP', 'BLEND', 'BR3', 'BR4', 'BR5', 'BR6',
+            'BTO', 'BVH', 'C4D', 'CG', 'CM2', 'CMF', 'CRF', 'CRZ', 'CSD', 'CSM', 'C~G', 'D3D', 'DAE', 'DAZ', 'DBL',
+            'DBS', 'DDD', 'DFF', 'DSA', 'DSE', 'DSI', 'DSO', 'DSV', 'DWF', 'E57', 'EXP', 'FBX', 'FC2', 'FIG', 'FP3',
+            'FPE', 'FPF', 'FSH', 'FX', 'FXS', 'FXT', 'GEO', 'GMMOD', 'GMT', 'GRN', 'HD2', 'HIP', 'HR2', 'HRZ', 'I2G',
+            'IFC', 'IGES', 'IV', 'IVE', 'KFM', 'KMC', 'KTR', 'LND', 'LP', 'LT2', 'LWO', 'LWS', 'LXF', 'LXO', 'M3', 'M3D',
+            'MA', 'MAT', 'MB', 'MC5', 'MC6', 'MDD', 'MEB', 'MESH', 'MGF', 'MOT', 'MQO', 'MS3D', 'MSH', 'MTL', 'MUD', 'MXM',
+            'MXS', 'NFF', 'NIF', 'OBP', 'OBZ', 'OCT', 'OFF', 'OGF', 'P3D', 'P3L', 'PKG', 'PP2', 'PPZ', 'PSK', 'PZ2', 'PZ3',
+            'PZZ', 'QC', 'RAD', 'RAY', 'RCS', 'RDS', 'RFT', 'S', 'SC4MODEL', 'SDB', 'SESSION', 'SH3D', 'SHP', 'SI', 'SKL', 'SKP',
+            'SRF', 'STEP', 'STO', 'T3D', 'TDDD', 'TMD', 'TME', 'TMO', 'TRI', 'U3D', 'UMS', 'V3D', 'V3O', 'VAC', 'VEG', 'VOX', 'VP',
+            'VPD', 'VRL', 'VS', 'VSH', 'VTX', 'VVD', 'W3D', 'WFT', 'WRL', 'WRP', 'WRZ', 'X', 'X3D', 'XAF', 'XMF', 'XMT_BIN',
+            'XMT_TXTQUO', 'XOF', 'XRF', 'XSF', 'XSI', 'YDL', 'Z3D',
+            'ADF', 'ADZ', 'AFD', 'AFF', 'AFM', 'ASHDISC', 'ATR', 'B5I', 'B5T', 'B6I', 'B6T', 'BWI', 'BWS', 'BWT', 'BWZ', 'C2D', 'CCD', 'CD', 'CDI',
+            'CDM', 'CDT', 'CFS', 'CIF', 'CL5', 'CSO', 'CUE', 'D01', 'D64', 'DAA', 'DAO', 'DART', 'DAX', 'DBR', 'DISK', 'DMG', 'DMS', 'DSK', 'DVD', 'E01',
+            'ECM', 'EDA', 'EDE', 'EDK', 'EDQ', 'EDS', 'EDV', 'EUI', 'FDI', 'FLG', 'FLP', 'GBI', 'GCD', 'GI', 'GKH', 'HDD', 'HFS',
+            'HFV', 'I00', 'IBP', 'IBQ', 'IM?', 'IMA', 'IMG', 'IMZ', 'ISO', 'ISZ', 'IXA', 'LNX', 'MBI', 'MD1', 'MDS', 'MDX', 'MIR', 'MRIMG', 'NFI', 'NRG',
+            'NRI', 'P01', 'P2G', 'P2I', 'PARTIMG', 'PDI', 'PGD', 'PQI', 'PVM', 'PXI', 'RATDVD', 'RCL', 'RDF', 'SCO', 'SDI', 'SPARSEIMAG', 'ST', 'SWM', 'T64',
+            'TAO', 'TIB', 'TOAST', 'TOC', 'TZX', 'UDF', 'UIF', 'VC4', 'VC6', 'VCD', 'VFD', 'VMDK', 'VMWAREVM', 'WIL', 'WIM', 'X64', 'XDI', 'XMD',
+            'ACR', 'ADC', 'AFX', 'AGP', 'AIC', 'ALBM', 'APD', 'APM', 'APS', 'APX', 'ARI', 'ARR', 'ARW', 'AWD', 'BAY', 'BMC', 'BMF',  'BMX', 'BMZ',
+            'BRK', 'BRT', 'C4', 'CALS', 'CAN', 'CDC', 'CDG', 'CE', 'CIN', 'CIT', 'CPC', 'CPD', 'CPS', 'CR2', 'CRW', 'CSF', 'CUT', 'DCM', 'DDS', 'DIB', 'DICOM',
+            'DJV', 'DJVU', 'DNG', 'DRZ', 'DT2', 'DTW', 'ECW', 'EXR', 'FAC', 'FACE', 'FAX', 'FBM', 'FIL', 'FITS', 'FPG', 'FPX', 'G3', 'GBR', 'GFB', 'GIH',
+            'GIM', 'GPD', 'GROB', 'GRY', 'HDR', 'hf', 'HPI', 'HR', 'HRF', 'IC1', 'IC2', 'IC3', 'ICB',
+            'ICN', 'icon', 'ICPR', 'ILBM', 'IMJ', 'INK', 'INT', 'IPX', 'ITHMB', 'IVR', 'IVUE', 'IWI', 'J2K', 'JAS', 'JB2', 'JBF', 'JBIG', 'JBIG2',
+            'JBR', 'JFI', 'JFIF', 'JIF', 'JNG', 'JP2', 'JPC', 'JPF', 'JPG2', 'JPGM', 'JPS', 'JPX', 'JTF', 'JWL', 'KDK', 'KFX',
+            'KIC', 'KPG', 'LBM', 'MAC', 'MAX', 'MBM', 'MCS', 'MEF', 'MIC', 'MIP', 'MNG', 'MNR', 'MOS', 'MPO', 'MRB', 'MRW', 'MSK', 'MSP', 'MXI', 'MYL',
+            'NCD', 'NCR', 'NCT', 'NEF', 'NEO', 'NRW', 'OCI', 'ODI', 'OMF', 'ORF', 'OTB', 'OTI', 'PC1', 'PC2', 'PC?', 'PCX', 'PDN', 'PE4',
+            'PGM', 'PI1', 'PI2', 'PI3', 'PI4', 'PI5', 'PI6', 'PIC', 'PICT', 'PICTCLIPPI', 'PIX', 'PJPEG', 'PM', 'PMG', 'PNM', 'PNT', 'PNTG', 'POP', 'POV',
+            'PP4', 'PP5', 'PRW', 'PSB', 'PSE', 'PSPBRUSH', 'PSPIMAGE', 'PTG', 'PTX', 'PVR', 'PWP', 'PX', 'PXD', 'PXM', 'PXR', 'PZP', 'QTI', 'QTIF', 'RAF',
+            'RAW', 'RGB', 'RIC', 'RIF', 'RIFF', 'RIX', 'RLE', 'RLI', 'RRI', 'RSB', 'RSR', 'SAR', 'SCG', 'SCI', 'SCP', 'SCT', 'SCU', 'SDR', 'SEP', 'SFW', 'SGI', 'SHG',
+            'SID', 'SIM', 'SKM', 'SLD', 'SOB', 'SPA', 'SPC', 'SPIFF', 'SPJ', 'SPP', 'SPRITE', 'SPU', 'SR', 'SR2', 'SRW', 'SUN', 'SUNIFF', 'TAAC', 'TEX', 'TFC', 'TG4', 'TGA',
+            'THUMB', 'TIF', 'TN1', 'TN2', 'TN3', 'TNY', 'TRIF', 'TUB', 'U', 'UFO', 'URT', 'UVG', 'UVI', 'UVVG', 'UVVI', 'V', 'VDA', 'VFF', 'VIC', 'VIFF', 'VNA',
+            'VSS', 'WBC', 'WBD', 'WBM', 'WBMP', 'WBZ', 'WEBP', 'WI', 'WIC', 'WMP', 'WVL', 'X3F', 'XBM', 'XCF', 'XWD', 'YSP', 'ZIF',
+            'AF2', 'AF3', 'ASY', 'CAG', 'CCX', 'CDD', 'CDMM', 'CDX', 'CGM', 'CIL', 'CMX', 'CNV', 'CSY', 'CV5', 'CVG', 'CVS', 'CVX', 'CXF',
+            'DCS', 'DESIGN', 'DPP', 'DRW', 'DXB', 'EMF', 'EMZ', 'EPS', 'EPSF', 'FH10', 'FH11', 'FH7', 'FH8', 'FH9', 'FHD', 'FIF', 'FS', 'FT7', 'FT8',
+            'FT9', 'GKS', 'GLOX', 'GLS', 'GQF', 'GQS', 'GRAFFLE', 'GSD', 'HGL', 'HPG',
+            'HPGL', 'HPL', 'IC5', 'IDEA', 'IGX', 'MGC', 'MGMF', 'MGS', 'MP', 'ODG', 'OTG', 'OVR', 'PD', 'PFD', 'PLT', 'PS', 'PSID', 'PWS',
+            'RDL', 'SCV', 'SDA', 'STD', 'SVF', 'SVGZ', 'TLC', 'VBR', 'VSD', 'VST', 'WMF', 'WPG', 'XAR', 'YAL', 'ZGM'
+            )
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndMusicVideo" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN
+            (
+            'A52', 'AA', 'AAC', 'AAX', 'ABM', 'AC3', 'ACM', 'ACP', 'ADV', 'AFC', 'AGM', 'AHX', 'AIF', 'AIFC', 'AIFF', 'AIS',
+            'AL', 'ALAW', 'ALL', 'ALS', 'AMF', 'AMR', 'AMS', 'AOB', 'APF', 'ASD', 'ASE', 'AT3', 'AU', 'AUD', 'AUP', 'AVR',
+            'AWB', 'AY', 'B4S', 'BAND', 'BDD', 'BRSTM', 'BUN', 'C01', 'CDA', 'CDDA', 'CDO', 'CDR', 'CFA', 'COPY', 'CSH', 'CWP',
+            'D00', 'DEWF', 'DF2', 'DFC', 'DIG', 'DJR', 'DLS', 'DM', 'DMF', 'DS', 'DSF', 'DSM', 'DSP', 'DTM', 'DTS', 'DTSHD', 'DVF',
+            'DWA', 'DWD', 'ECELP4800', 'ECELP7470', 'ECELP9600', 'EFA', 'EFE', 'EFK', 'EFQ', 'EFS',
+            'EFV', 'EMP', 'EMX', 'EMY', 'EOL', 'ESPS', 'F2R', 'F32', 'F3R', 'F4A', 'F64', 'FDA', 'FFF',
+            'FLAC', 'FRG', 'FSM', 'FTM', 'FZB', 'FZF', 'FZV', 'GBS', 'GIG', 'GIO', 'GM', 'GP5', 'GPK', 'GRO',
+            'H0', 'HDP', 'HMA', 'HMI', 'HSB', 'IFF', 'IGP', 'IMF', 'IMP', 'INS', 'IT', 'ITI', 'K25', 'KAR', 'KFN',
+            'KIN', 'KMP', 'KOZ', 'KRZ', 'KSC', 'KSF', 'KT2', 'KT3', 'KTP', 'L', 'LA', 'LOF', 'LQT', 'LSO', 'LVP', 'LWV',
+            'M1A', 'M3U', 'M3U8', 'M4A', 'M4B', 'M4P', 'M4R', 'MA1', 'MBR', 'MDL', 'MED', 'MID', 'MIDI', 'MINIUSF', 'MKA', 'MLP', 'MMF',
+            'MMM', 'MO3', 'MP1', 'MP2', 'MP2A', 'MP3', 'MP3G', 'MP4A', 'MP?', 'MPA', 'MPC', 'MPGA', 'MSCX', 'MSCZ', 'MSV',
+            'MT2', 'MT9', 'MTE', 'MTF', 'MTI', 'MTM', 'MTP', 'MTS', 'MUI', 'MUX', 'MUZ', 'MWS', 'MX3', 'MXL', 'MXMF',
+            'MYR', 'NAP', 'NKC', 'NKI', 'NKM', 'NKS', 'NRA', 'NRT', 'NSF', 'NST', 'NTN', 'NVF', 'OGA', 'OGG', 'OKT', 'OMA',
+            'OMG', 'OMX', 'ORC', 'OVE', 'OVW', 'PCA', 'PCG', 'PCM', 'PEK', 'PHO', 'PHY', 'PK', 'PKF', 'PLA', 'PLY', 'PNA', 'PRG',
+            'PSY', 'PTM', 'PTS', 'PVC', 'PYA', 'QCP', 'R1M', 'RA', 'RAM', 'RAX', 'RBS', 'RCY',
+            'REX', 'RFL', 'RIP', 'RMF', 'RMI', 'RMJ', 'RMM', 'RNG', 'RNS', 'ROL', 'RTM', 'RTS', 'RVX', 'RX2', 'S3I', 'S3M', 'S3Z',
+            'SAM', 'SAP', 'SB', 'SBI', 'SC2', 'SC?', 'SD', 'SD2', 'SD2F', 'SDX', 'SEG', 'SEQ', 'SES', 'SF2', 'SFAP0', 'SFK', 'SFL',
+            'SHN', 'SIB', 'SMA', 'SMF', 'SND', 'SNG', 'SOU', 'SPH', 'SPPACK', 'SPX', 'STAP', 'SW', 'SWA', 'SXT', 'SYN', 'SYW', 'SYX', 'TAK',
+            'TD0', 'THX', 'TSP', 'TTA', 'TUN', 'TXW', 'U8', 'UA', 'UAX', 'UB', 'ULT', 'ULW', 'UNI', 'USF', 'UVA', 'UVVA', 'UW', 'UWF', 'V2M',
+            'VAG', 'VAP', 'VB', 'VDJ', 'VGM', 'VLC', 'VMD', 'VMF', 'VMO', 'VOC', 'VPM', 'VQF', 'VRF', 'W64', 'W??', 'WAV', 'WAVE', 'WAX', 'WEBA',
+            'WFB', 'WFD', 'WFP', 'WMA', 'WOW', 'WPP', 'WUS', 'WUT', 'WV', 'WVC', 'WVE', 'XA', 'XFS', 'XI', 'XM', 'XMI', 'XMZ', 'XP', 'XRNS', 'XSB',
+            'XSPF', 'XWB', 'YM', 'ZPA', 'ZPL', 'ZVD', 'ZVR', 'AMZ', 'VPL',
+            '3GPP2', 'AAF', 'AET', 'AJP', 'ALE', 'AMV', 'ARF', 'ASF', 'ASX', 'AVB', 'AVD', 'AVI', 'AVP', 'AVS', 'AXM', 'BDM', 'BDMV', 'BOX',
+            'BSF', 'BYU', 'CAMPROJ', 'CAMREC', 'CIP', 'CLPI', 'CMMP', 'CMMTPL', 'CMPROJ', 'D2V', 'DCE', 'DCK', 'DCR', 'DIR', 'DIVX', 'DMB',
+            'DMSD', 'DMX', 'DNC', 'DPA', 'DPG', 'DREAM', 'DV', 'DVR', 'DVR-MS', 'DVX', 'DXR', 'DZP', 'D~V', 'EDL', 'ES3', 'EVO', 'EYE', 'F4P',
+            'F4V', 'FBR', 'FCP', 'FLC', 'FLH', 'FLI', 'FLV', 'GL', 'GRASP', 'GTS', 'GVI', 'GVP', 'H261', 'H263', 'H264', 'HDMOV', 'IFO',
+            'IMOVIEPROJ', 'IRF', 'ISM', 'IVF', 'IVS', 'JPGV',
+            'LSF', 'LSX', 'M15', 'M1PG', 'M1V', 'M21', 'M2A', 'M2TS', 'M2V', 'M4U', 'M4V', 'M75', 'M??', 'META', 'MGV', 'MJ2', 'MJP', 'MJP2',
+            'MJPEG', 'MJPG', 'MK3D', 'MKV', 'MMV', 'MOB', 'MOD', 'MODD', 'MOI', 'MOOV', 'MOV', 'MOVIE', 'MP21', 'MP2V', 'MP4', 'MP4S', 'MP4V',
+            'MPE', 'MPEG', 'MPF', 'MPG', 'MPL', 'MPLS', 'MPV', 'MPV2', 'MQV', 'MSDVD', 'MSE', 'MSWMM', 'MTV', 'MVB', 'MVC', 'MVD', 'MVE', 'MVP',
+            'MXF', 'MYS', 'NSV', 'NUV', 'NVC', 'OGM', 'OGV', 'OGX', 'PGI', 'PIV', 'PLAYLIST', 'PMV', 'PPJ', 'PREL', 'PRO', 'PRPROJ', 'PRTL', 'PSH',
+            'PSSD', 'PTID', 'PVA', 'PXV', 'QT', 'QTCH', 'QTL', 'QTM', 'QTZ', 'R3D', 'RCPROJECT', 'RDB', 'REC', 'RM', 'RMP', 'RMS', 'RMVB', 'ROQ',
+            'RV', 'RVL', 'SBK', 'SBT', 'SFVIDCAP', 'SIV', 'SMI', 'SMIL', 'SMK', 'SMV', 'SPL', 'SQZ', 'SRT', 'SSM', 'STR', 'STX', 'SVI', 'SWF', 'SWI',
+            'SWT', 'TDX', 'TIVO', 'TIX', 'TOD', 'TP', 'TPD', 'TPR', 'TRP', 'TVS', 'UVH', 'UVM',
+            'UVS', 'UVU', 'UVVH', 'UVVM', 'UVVP', 'UVVS', 'UVVU', 'UVVV', 'VCR', 'VDO', 'VDR', 'VDX', 'VEM', 'VF', 'VFT', 'VFW', 'VFZ', 'VGZ',
+            'VID', 'VIDEO', 'VIVO', 'VLAB', 'VP3', 'VP6', 'VPJ', 'VRO', 'W32', 'WCP', 'webm', 'WLMP', 'WM', 'WMD', 'WMV', 'WMX', 'WOT', 'WP3',
+            'WTV', 'WVX', 'XEJ', 'XEL', 'XFL', 'XVID', 'YUV', 'ZMV'
+            )
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndCad" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN
+            (
+            'ADT', 'AFS', 'ARD', 'ATT', 'BDC', 'BDL', 'BIT', 'BLK', 'CAD', 'CAM', 'CATPART', 'CATPRODUCT', 'CEL',
+            'CKD', 'CNC', 'CPA', 'CRV', 'DBQ', 'DC', 'DC1', 'DC2', 'DC3', 'DCD', 'DC~', 'DES', 'DFT', 'DFX', 'DGK',
+            'DGN', 'DLV', 'DLX', 'DRA', 'DRG', 'DSG', 'DST', 'DWG', 'DWS', 'DWT', 'DXE', 'DXF', 'DXX', 'EASM', 'EDN',
+            'EDRW', 'EQN', 'EZC', 'EZP', 'FAN', 'FCW', 'FLX', 'FMZ', 'FNC', 'FPD', 'FZ', 'G', 'GDL', 'GDS', 'GTW', 'GXC',
+            'GXD', 'GXM', 'HCP', 'HSF', 'HUS', 'IAM', 'IDE', 'IDV', 'IDW', 'IGS', 'IPJ', 'IPN', 'IPT', 'JAM', 'JBC', 'JOB',
+            'JT', 'JVSG', 'KIT', 'KTZ', 'LCF', 'LDR', 'LIN', 'MC9', 'MCX', 'MODEL', 'MS9', 'MVS', 'NC', 'NEU', 'NGD', 'NPL',
+            'NWC', 'NWD', 'NWF', 'OLB', 'OPJ', 'PCS', 'PIPE', 'PM3', 'PRT', 'PSS', 'PSV', 'PWD', 'RED', 'RIG', 'RML', 'RRA',
+            'SAB', 'SAT', 'SBP', 'SDG', 'SEW', 'SKF', 'SLDASM', 'SLDDRW', 'SLDPRT', 'T3001', 'TBP', 'TC3', 'TCD', 'TCM', 'TCT',
+            'TCW', 'TSF', 'UNT', 'VET', 'VND', 'VTF', 'WDP', 'XISE', 'XYB', 'X_B', 'X_T'
+            )
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndHtml" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN
+            (
+            'A4P', 'A5W', 'ADR', 'AEX', 'ALX', 'AP', 'ARO', 'ASA', 'ASAX', 'ASCX', 'ASHX', 'ASMX', 'ASP', 'ASPX',
+            'ATOM', 'ATOMCAT', 'AWM', 'AXD', 'BML', 'BWP', 'CER', 'CFM', 'CFML', 'CHAT', 'CHM', 'CMS', 'CON', 'CPG',
+            'CRDOWNLOAD', 'CRL', 'CRT', 'CSP', 'CSR', 'CSS', 'DAVMOUNT', 'DBM', 'DER', 'DISCO', 'DLL', 'DML', 'DO',
+            'DOCHTML', 'DOCMHTML', 'DOTHTML', 'DOWNLOAD', 'ECE', 'EWP', 'FCGI', 'FMP', 'FWP', 'GNE', 'GSP', 'HDM', 'HDML',
+            'HTACCESS', 'HTC', 'HTM', 'HTML', 'HTMLX', 'HTX', 'HXS', 'IDC', 'IMAGEMAP', 'IMAP', 'IQY', 'JHTML', 'JNLP', 'JSON',
+            'JSP', 'JSPA', 'JSS', 'JST', 'JVS', 'JWS', 'LASSO', 'MAFF', 'MAPX', 'MASTER', 'META4', 'MHT', 'MHTML', 'MOZ', 'MSCML',
+            'MSPX', 'MUSE', 'MVR', 'NZB', 'OBML', 'OGNC', 'OPML', 'ORQ', 'ORS', 'OTH', 'P12', 'P7', 'P7B', 'P7C', 'PAC', 'PAGE',
+            'PEM', 'PHP', 'PHP3', 'PHP4', 'PHP5', 'PHTM', 'PHTML', 'PPTHTML', 'PSP', 'PUB', 'QBO', 'QF', 'QRM', 'RHTML', 'RJS',
+            'RSS', 'RT', 'RW3', 'RWP', 'SHT', 'SHTM', 'SHTML', 'SITE', 'SSP', 'STC', 'STL', 'STML', 'SVC', 'SVR', 'SWZ', 'TVVI',
+            'UCF', 'URL', 'VBD', 'VLP', 'VRML', 'VSDISCO', 'WBXML', 'WDGT', 'WEB', 'WEBARCHIVE', 'WEBHISTORY', 'WEBLOC', 'WEBSITE',
+            'WGP', 'WGT', 'WHTT', 'WML', 'WN', 'WOA', 'WPX', 'WRF', 'WSDL', 'XBEL', 'XBL', 'XFDL', 'XHT', 'XHTM', 'XHTML', 'XPD',
+            'XSS', 'XUL', 'XWS', 'ZFO'
+            )
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileListByMemberKeyAndZip" parameterType="String" resultType="map">
+        SELECT
+        a.FILE_ID,
+        a.FILE_TYPE,
+        a.FILE_PATH,
+        a.REAL_FILE_NM,
+        a.FILE_NM,
+        a.FILE_SIZE,
+        a.MEMBER_KEY,
+        a.FILE_USAGE,
+        a.DIRECTORY_ID,
+        a.CRE_USER_ID,
+        a.UPD_USER_ID,
+        a.CRE_DT,
+        a.UPD_DT,
+        a.ONLY_DRIVE,
+        b.DIRECTORY_NM
+        FROM tb_attch_file a LEFT JOIN tb_member_directory b ON a.DIRECTORY_ID = b.DIRECTORY_ID
+        WHERE a.MEMBER_KEY = #{memberKey}
+        <if test="fileType != null and fileType != ''">
+            AND a.FILE_TYPE IN
+            (
+            'A00', 'A01', 'A02', 'ACE', 'AIN', 'ALZ', 'APZ', 'AR', 'ARH', 'ARJ', 'ARK', 'B1', 'B64', 'BA', 'BH', 'BOO',
+            'BZ', 'BZA', 'BZIP2', 'C00', 'C02', 'C10', 'CB7', 'CBR', 'CBT', 'CBZ', 'CPGZ', 'CZIP', 'DAR', 'DD', 'DEB',
+            'DGC', 'DL_', 'DZ', 'ECS', 'EFW', 'EGG', 'EPI', 'F', 'FDP', 'GCA', 'GZ', 'GZA', 'GZIP', 'HA', 'HBC', 'HBC2',
+            'HBE', 'HKI', 'HKI1', 'HKI2', 'HKI3', 'HPK', 'ICE', 'IPG', 'IPK', 'ISH', 'ITA', 'KGB', 'LBR', 'LHA', 'LQR',
+            'LZ', 'LZH', 'LZM', 'LZMA', 'LZO', 'LZX', 'MINT', 'MOU', 'MPKG', 'MZP', 'PACKAGE', 'PAE',
+            'PAK', 'PAQ6', 'PAQ7', 'PAQ8', 'PAR', 'PAR2', 'PAX', 'PBI', 'PCV', 'PEA', 'PET', 'PF', 'PIM', 'PIZ', 'PUP',
+            'PUZ', 'PWA', 'QDA', 'R00', 'R01', 'R02', 'R03', 'RAR', 'REV', 'RK', 'RNC', 'RP9', 'RPM', 'RTE', 'RZ', 'S00',
+            'S01', 'S02', 'S7Z', 'S??', 'SBX', 'SDN', 'SEA', 'SFS', 'SFX', 'SH', 'shar', 'SHK', 'SHR', 'SIT', 'SITX', 'SQX',
+            'SV4CPIO', 'SY_', 'TAZ', 'TBZ', 'TBZ2', 'TG', 'TGZ', 'TLZ', 'TXZ', 'TX_', 'TZ', 'UC2', 'UHA', 'VSI', 'WAR', 'X3DZ',
+            'XEZ', 'XX', 'XZ', 'Y', 'YZ', 'YZ1', 'Z', 'Z01', 'Z02', 'Z03', 'Z04', 'ZFSENDTOTA', 'ZIP', 'ZIPX',
+            'ZIX', 'ZL', 'ZOO', 'ZPI', 'ZZ'
+            )
+        </if>
+        ORDER BY a.CRE_DT DESC
+    </select>
+    <select id="selectAttchFileSizeByMemberKeyAndId" parameterType="String" resultType="AttchFileParam">
+        SELECT
+            FILE_ID,
+            FILE_TYPE,
+            FILE_PATH,
+            REAL_FILE_NM,
+            FILE_NM,
+            FILE_SIZE,
+            MEMBER_KEY,
+            FILE_USAGE,
+            DIRECTORY_ID,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT,
+            ONLY_DRIVE
+        FROM tb_attch_file
+        WHERE MEMBER_KEY = #{memberKey}
+          AND CRE_USER_ID = #{id}
+          AND FILE_USAGE = 'drive'
+    </select>
+    <update id="updateAttchFileDirectoryId" parameterType="AttchFileParam">
+        UPDATE tb_attch_file
+        SET DIRECTORY_ID = #{directoryId}
+        WHERE FILE_ID = #{fileId}
+    </update>
+    <delete id="deleteAttchFile" parameterType="AttchFileParam">
+        DELETE FROM tb_attch_file
+        WHERE FILE_ID = #{fileId}
+    </delete>
+    <select id="selectAttchOnlyDriveMine" parameterType="String" resultType="map">
+        SELECT
+            FILE_ID,
+            FILE_TYPE,
+            FILE_PATH,
+            REAL_FILE_NM,
+            FILE_NM,
+            FILE_SIZE,
+            MEMBER_KEY,
+            FILE_USAGE,
+            DIRECTORY_ID,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT,
+            ONLY_DRIVE
+        FROM tb_attch_file
+        WHERE DIRECTORY_ID = #{directoryId}
+          AND FILE_USAGE = 'drive'
+          AND MEMBER_KEY = #{memberKey}
+          AND CRE_USER_ID = #{creUserId}
+          AND ONLY_DRIVE = 'Y'
+        ORDER BY FILE_NM
+    </select>
+    <select id="selectAttchOnlyDriveNotMine" parameterType="String" resultType="map">
+        SELECT
+            FILE_ID,
+            FILE_TYPE,
+            FILE_PATH,
+            REAL_FILE_NM,
+            FILE_NM,
+            FILE_SIZE,
+            MEMBER_KEY,
+            FILE_USAGE,
+            DIRECTORY_ID,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT,
+            ONLY_DRIVE
+        FROM tb_attch_file
+        WHERE DIRECTORY_ID = #{directoryId}
+          AND FILE_USAGE = 'drive'
+          AND MEMBER_KEY = #{memberKey}
+          AND NOT CRE_USER_ID = #{creUserId}
+          AND ONLY_DRIVE = 'Y'
+        ORDER BY FILE_NM
+    </select>
+    <select id="selectAttchTaskBoardMine" parameterType="String" resultType="map">
+        SELECT
+            c.FILE_ID,
+            c.FILE_TYPE,
+            c.FILE_PATH,
+            c.REAL_FILE_NM,
+            c.FILE_NM,
+            c.FILE_SIZE,
+            c.MEMBER_KEY,
+            c.FILE_USAGE,
+            c.DIRECTORY_ID,
+            c.CRE_USER_ID,
+            c.UPD_USER_ID,
+            c.CRE_DT,
+            c.UPD_DT,
+            c.ONLY_DRIVE,
+            d.TASK_NM,
+            a.BOARD_TITLE
+        FROM
+            tb_board a
+                LEFT JOIN tb_attch_file_grp b on a.GRP_ID = b.GRP_ID
+                LEFT JOIN tb_attch_file c on c.FILE_ID = b.FILE_ID
+                LEFT JOIN tb_task d ON a.TASK_KEY = d.TASK_KEY
+        WHERE c.DIRECTORY_ID = #{directoryId}
+          AND c.FILE_USAGE = 'drive'
+          AND c.MEMBER_KEY = #{memberKey}
+          AND c.CRE_USER_ID = #{creUserId}
+          AND c.ONLY_DRIVE = 'N'
+        ORDER BY c.CRE_DT desc
+    </select>
+    <select id="selectAttchTaskBoardNotMineButTaskUserList" parameterType="String" resultType="map">
+        SELECT
+            c.FILE_ID,
+            c.FILE_TYPE,
+            c.FILE_PATH,
+            c.REAL_FILE_NM,
+            c.FILE_NM,
+            c.FILE_SIZE,
+            c.MEMBER_KEY,
+            c.FILE_USAGE,
+            c.DIRECTORY_ID,
+            c.CRE_USER_ID,
+            c.UPD_USER_ID,
+            c.CRE_DT,
+            c.UPD_DT,
+            c.ONLY_DRIVE,
+            d.TASK_NM,
+            a.BOARD_TITLE
+        FROM
+            tb_board a
+                LEFT JOIN tb_attch_file_grp b on a.GRP_ID = b.GRP_ID
+                LEFT JOIN tb_attch_file c on c.FILE_ID = b.FILE_ID
+                LEFT JOIN tb_task d ON a.TASK_KEY = d.TASK_KEY
+                LEFT JOIN tb_task_user_list e ON e.TASK_KEY = a.TASK_KEY
+        WHERE c.DIRECTORY_ID = #{directoryId}
+          AND c.FILE_USAGE = 'drive'
+          AND c.MEMBER_KEY = #{memberKey}
+          AND NOT c.CRE_USER_ID = #{creUserId}
+          AND c.ONLY_DRIVE = 'N'
+          AND e.USER_ID = #{creUserId}
+        ORDER BY c.CRE_DT desc
+    </select>
+
+
+
+
+
+    <select id="selectAttchTaskCmtBoardMine" parameterType="String" resultType="map">
+        SELECT
+            c.FILE_ID,
+            c.FILE_TYPE,
+            c.FILE_PATH,
+            c.REAL_FILE_NM,
+            c.FILE_NM,
+            c.FILE_SIZE,
+            c.MEMBER_KEY,
+            c.FILE_USAGE,
+            c.DIRECTORY_ID,
+            c.CRE_USER_ID,
+            c.UPD_USER_ID,
+            c.CRE_DT,
+            c.UPD_DT,
+            c.ONLY_DRIVE,
+            e.TASK_NM,
+            d.BOARD_TITLE,
+            a.CMT_CONTENT,
+            a.CMT_KEY
+        FROM
+             tb_cmt a
+             LEFT JOIN tb_attch_file_grp b ON a.GRP_ID = b.GRP_ID
+             LEFT JOIN tb_attch_file c ON b.FILE_ID = c.FILE_ID
+             LEFT JOIN tb_board d ON a.CMT_BOARD = d.BOARD_KEY
+             LEFT JOIN tb_task e ON e.TASK_KEY = d.TASK_KEY
+        WHERE c.DIRECTORY_ID = #{directoryId}
+          AND c.FILE_USAGE = 'drive'
+          AND c.MEMBER_KEY = #{memberKey}
+          AND c.CRE_USER_ID = #{creUserId}
+          AND c.ONLY_DRIVE = 'N'
+        ORDER BY c.CRE_DT desc
+    </select>
+    <select id="selectAttchTaskCmtBoardNotMineButTaskUserList" parameterType="String" resultType="map">
+        SELECT
+            c.FILE_ID,
+            c.FILE_TYPE,
+            c.FILE_PATH,
+            c.REAL_FILE_NM,
+            c.FILE_NM,
+            c.FILE_SIZE,
+            c.MEMBER_KEY,
+            c.FILE_USAGE,
+            c.DIRECTORY_ID,
+            c.CRE_USER_ID,
+            c.UPD_USER_ID,
+            c.CRE_DT,
+            c.UPD_DT,
+            c.ONLY_DRIVE,
+            e.TASK_NM,
+            d.BOARD_TITLE,
+            a.CMT_CONTENT,
+            a.CMT_KEY
+        FROM
+            tb_cmt a
+                LEFT JOIN tb_attch_file_grp b ON a.GRP_ID = b.GRP_ID
+                LEFT JOIN tb_attch_file c ON b.FILE_ID = c.FILE_ID
+                LEFT JOIN tb_board d ON a.CMT_BOARD = d.BOARD_KEY
+                LEFT JOIN tb_task e ON d.TASK_KEY = e.TASK_KEY
+                LEFT JOIN tb_task_user_list f ON e.TASK_KEY = f.TASK_KEY
+        WHERE c.DIRECTORY_ID = #{directoryId}
+          AND c.FILE_USAGE = 'drive'
+          AND c.MEMBER_KEY = #{memberKey}
+          AND NOT c.CRE_USER_ID = #{creUserId}
+          AND c.ONLY_DRIVE = 'N'
+          AND f.USER_ID = #{creUserId}
+        ORDER BY c.CRE_DT desc
+    </select>
+</mapper>

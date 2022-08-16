@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="moveModalFragment">
+    <div class="modal fade" tabindex="-1" id="moveModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="moveTitle">move 타이틀</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="moveText">move 텍스트</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" th:onclick="move" class="btn btn-primary" id="moveConfirmBtn">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

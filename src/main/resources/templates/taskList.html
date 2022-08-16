@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html
+  lang="ko"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/layout2}"
+>
+  <th:block layout:fragment="content">
+    <div class="container-lg mt-5" id="content-body">
+      <div class="row g-0">
+        <th:block th:each="task : ${tasks}">
+          <div class="col-3 p-1">
+            <div class="card" style="height: 200px;" th:attr="onclick=|taskSelect('${task.TASK_KEY}')|">
+              <div class="card-header" th:text="${task.TASK_NM}">
+              </div>
+              <div class="card-body">
+                <p class="card-text" th:text="${task.TASK_INTRO}"></p>
+              </div>
+            </div>
+          </div>
+        </th:block>
+      </div>
+      <script th:inline="javascript">
+        function taskSelect(key){
+          let url = 'taskDetail';
+          let memberLink = document.location.pathname.replace("main", "") + "task/" + key;
+          move(memberLink);
+        }
+
+      </script>
+    </div>
+  </th:block>
+</html>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.AttchFileGrpMapper">
+    <select id="selectAttchFileGrpList" parameterType="String" resultType="AttchFileGrpParam">
+        SELECT
+            GRP_ID,
+            FILE_ID,
+            CRE_USER_ID,
+            UPD_USER_ID,
+            CRE_DT,
+            UPD_DT
+        FROM tb_attch_file_grp
+        WHERE GRP_ID = #{grpId}
+    </select>
+    <select id="selectAttchFileListByGrpId" parameterType="String" resultType="AttchFileParam">
+        SELECT
+            b.FILE_ID,
+            b.FILE_TYPE,
+            b.FILE_PATH,
+            b.REAL_FILE_NM,
+            b.FILE_NM,
+            b.FILE_SIZE,
+            b.MEMBER_KEY,
+            b.FILE_USAGE,
+            b.DIRECTORY_ID,
+            b.CRE_USER_ID,
+            b.UPD_USER_ID,
+            b.CRE_DT,
+            b.UPD_DT
+        FROM tb_attch_file_grp a LEFT JOIN tb_attch_file b ON a.FILE_ID = b.FILE_ID
+        WHERE GRP_ID = #{grpId}
+    </select>
+    <insert id="insertAttchFileGrp" parameterType="AttchFileGrpParam">
+        INSERT INTO tb_attch_file_grp
+               (
+                GRP_ID,
+                FILE_ID,
+                CRE_USER_ID,
+                UPD_USER_ID
+               )
+        VALUES (
+                #{grpId},
+                #{fileId},
+                #{creUserId},
+                #{updUserId}
+            )
+    </insert>
+    <select id="getAttchFileList" parameterType="String" resultType="AttchFileParam">
+        SELECT
+            b.GRP_ID,
+            a.FILE_ID,
+            a.FILE_TYPE,
+            a.FILE_PATH,
+            a.REAL_FILE_NM,
+            a.FILE_NM,
+            a.FILE_SIZE,
+            a.MEMBER_KEY,
+            a.FILE_USAGE,
+            a.DIRECTORY_ID,
+            a.CRE_USER_ID,
+            a.UPD_USER_ID,
+            a.CRE_DT,
+            a.UPD_DT,
+            c.DIRECTORY_NM,
+            c.VISUAL_DIRECTORY_LOCATION
+        FROM tb_attch_file a LEFT JOIN tb_attch_file_grp b ON a.FILE_ID = b.FILE_ID LEFT JOIN tb_member_directory c on a.DIRECTORY_ID = c.DIRECTORY_ID
+        WHERE b.GRP_ID = #{grpId}
+        ORDER BY a.FILE_TYPE, a.File_NM
+    </select>
+    <delete id="deleteAttchFileGrp" parameterType="AttchFileParam">
+        DELETE FROM tb_attch_file_grp
+        WHERE FILE_ID = #{fileId}
+    </delete>
+    <select id="selectFileJoinGrp" parameterType="String" resultType="hashmap">
+        SELECT taf.FILE_ID ,taf.FILE_USAGE, taf.FILE_PATH, taf.REAL_FILE_NM FROM tb_attch_file taf left join tb_attch_file_grp tafg on taf.FILE_ID = tafg.FILE_ID WHERE tafg.GRP_ID = #{grpId};
+    </select>
+</mapper>

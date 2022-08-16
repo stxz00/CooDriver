@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="addCodeDtlModalFragment">
+    <div class="modal fade" tabindex="-1" id="addCodeDtlModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content ">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <p>공통상세코드 추가</p>
+                            <form id="addCodeDtlForm">
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <label for="cmDtlCode" class="form-label">공통상세코드<span style="color: red; font-size: 13px" class="cmDtlCodeErr"></span></label>
+                                        <input class="form-control" type="text" id="cmDtlCode" placeholder="공통상세코드 입력" />
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <label for="cmDtlCodeNm" class="form-label">공통코드명</label>
+                                        <input class="form-control" type="text" id="cmDtlCodeNm" placeholder="공통상세코드명 입력" />
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <label for="cmDtlCodeExp" class="form-label">공통상세코드설명</label>
+                                        <input class="form-control" type="text" id="cmDtlCodeExp" placeholder="공통코드설명 입력" />
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-primary" id="addCodeDtlConfirm" th:onclick="addCodeDtl()">추가</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="addCodeDtlCancleBtn">취소</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

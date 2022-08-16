@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.CommonCodeDtlMapper">
+    <insert id="insertCommonCodeDtl" parameterType="CommonCodeDtlParam">
+        INSERT INTO tb_common_code_dtl (
+                             CM_CODE,
+                             CM_DTL_CODE,
+                             CM_DTL_CODE_NM,
+                             CM_DTL_CODE_EXP,
+                             CRE_USER_ID,
+                             UPD_USER_ID
+                             )
+                             VALUES (
+                             #{cmCode}, #{cmDtlCode}, #{cmDtlCodeNm}, #{cmDtlCodeExp}, #{creUserId}, #{updUserId}
+                             );
+    </insert>
+
+    <select id="selectCommonCodeDtl" parameterType="String" resultType="CommonCodeDtlParam">
+        SELECT * FROM tb_common_code_dtl where CM_CODE = #{cmDtlCode};
+    </select>
+
+    <select id="getCommonCodeDtlList" parameterType="PageParam" resultType="map">
+        SELECT CM_CODE,
+               CM_DTL_CODE,
+               CM_DTL_CODE_NM,
+               CM_DTL_CODE_EXP,
+               USE_YN,
+               CRE_USER_ID,
+               UPD_USER_ID,
+               CRE_DT,
+               UPD_DT
+        FROM tb_common_code_dtl
+        WHERE USE_YN = 'Y'
+        <if test="searchNm != null and searchNm != ''">
+        AND CM_CODE = #{searchNm}
+        </if>
+        ORDER BY LENGTH(CM_DTL_CODE), CM_DTL_CODE
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <select id="getTotalCnt" resultType="_int">
+        SELECT COUNT(*) FROM tb_common_code_dtl;
+        <if test="searchNm != null and searchNm != ''">
+        WHERE CM_CODE = #{searchNm}
+        </if>
+    </select>
+    <update id="deleteCommonCodeDtlByCmCode" parameterType="String">
+        UPDATE tb_common_code_dtl
+        SET USE_YN = 'N',
+            UPD_USER_ID = #{id}
+        WHERE CM_CODE = #{cmCode}
+    </update>
+    <update id="deleteCommonCodeDtl" parameterType="String">
+        UPDATE tb_common_code_dtl
+        SET USE_YN = 'N',
+            UPD_USER_ID = #{id}
+        WHERE CM_DTL_CODE = #{cmDtlCode}
+    </update>
+    <update id="updateCommonCodeDtl" parameterType="CommonCodeDtlParam">
+        UPDATE tb_common_code_dtl
+        SET CM_DTL_CODE_NM = #{cmDtlCodeNm},
+            CM_DTL_CODE_EXP = #{cmDtlCodeExp},
+            UPD_USER_ID = #{updUserId}
+        WHERE CM_DTL_CODE = #{cmDtlCode}
+
+    </update>
+</mapper>

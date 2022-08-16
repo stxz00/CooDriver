@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<th:block layout:fragment="content">
+    <div class="row mr-0 ml-0">
+        <div class="col-12 px-1 py-1 ">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-11 mt-2 mb-2 jumbotron-content">
+                        <h1 class="display-4">공통코드 관리</h1>
+                        <p class="lead">공통코드 수정</p>
+                        <hr class="my-4">
+                        <form id="form" th:object="${commonCodeParam}">
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label for="cmCode" class="form-label">공통코드명</label>
+                                    <input class="form-control" type="text" id="cmCode" th:field="*{cmCode}" disabled placeholder="공통코드명 입력" />
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label for="cmCodeNm" class="form-label">공통코드명</label>
+                                    <input class="form-control" type="text" id="cmCodeNm" th:field="*{cmCodeNm}" placeholder="공통코드명 입력" />
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label for="cmCodeExp" class="form-label">공통코드 설명</label>
+                                    <input class="form-control" type="text" id="cmCodeExp" th:field="*{cmCodeExp}" placeholder="공통코드 설명 입력" />
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col">
+                                    <button type="button" class="btn btn-primary" th:onclick="updCmCode()">수정</button>
+                                    <button type="button" class="btn btn-secondary" th:onclick="move('/cmCode/main')">뒤로</button>
+                                </div>
+                            </div>
+                        </form>
+                        <hr class="my-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            let cmCode =  sessionStorage.getItem("cmCode");
+            console.log(cmCode)
+            if(cmCode == null || cmCode == "") {
+                location.href = "/";
+            }
+            $.ajax({
+                url: "/cmCode/select",
+                type: "POST",
+                data: cmCode,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8"
+            }).done((data) => {
+                console.log(data);
+                document.querySelector("#cmCode").value = data.cmCode;
+                document.querySelector("#cmCodeNm").value = data.cmCodeNm;
+                document.querySelector("#cmCodeExp").value = data.cmCodeExp;
+            }).fail((a,b,c)=>{
+                console.log(a,b,c)
+                // location.href="/";
+            });
+        });
+
+
+        function updCmCode(){
+            let commonCodeParam = $("#form").serializeObject();
+            commonCodeParam.cmCode = sessionStorage.getItem("cmCode");
+            console.log(commonCodeParam);
+                $.ajax({
+                url: "/cmCode/update",
+                data: JSON.stringify(commonCodeParam),
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                })
+                .done((data) => {
+                    if ( data == 1 ) {
+                        location.href="/cmCode/main";
+                    } else {
+                        $("#cancleTitle").text("공통코드 추가 실패");
+                        $("#cancleText").text("공통코드를 추가하는데 실패하였습니다. 입력한 내용을 확인해주세요.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+                })
+                .fail(() => {
+                    $("#cancleTitle").text("공통코드 추가 실패");
+                    $("#cancleText").text("공통코드를 추가하는데 실패하였습니다. 입력한 내용을 확인해주세요.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                })
+        }
+    </script>
+</th:block>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+    <th:block th:fragment="adminTopFragment(tab)">
+        <div class="container-lg mt-5">
+            <ul class="nav nav-tabs nav-justified" th:if="${tab} == 'admin_member'">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#navuserDiv" onclick="tabLoader('user')">User</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#navbanDiv" onclick="tabLoader('ban')">Ban</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#navinvDiv">Inv</a>
+                </li>
+            </ul>
+            <ul class="nav nav-tabs nav-justified" th:if="${tab} == 'admin_teambox'">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#navtotalmemberDiv" onclick="tabLoader('totalMember')">Member</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#navtotaluserDiv" onclick="tabLoader('totalUser')">User</a>
+                </li>
+            </ul>
+        </div>
+        <script th:inline="javascript">
+            function tabLoader(tab){
+                let link = "/replace/" + localStorage.getItem("memberAddress") + "/tabLoader";
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    data: {
+                        tab : tab
+                    }
+                }).done((data) => {
+                    let id = "#nav"+tab;
+                    $(id).replaceWith(data);
+                    if(tab != 'totalMember' && tab!='totalUser')
+                        posSet();
+                });
+            }
+        </script>
+    </th:block>
+</html>

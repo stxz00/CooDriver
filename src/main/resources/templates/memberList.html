@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html
+        lang="ko"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout}"
+>
+<th:block layout:fragment="content">
+    <div class="mr-0 ml-0" id="replaceSection">
+        <div class="col-12">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-8 mt-5 mb-5 jumbotron-content">
+                        <h1 class="display-4">멤버 리스트</h1>
+                        <hr class="my-4">
+                        <button
+                                type="button"
+                                class="btn rounded-pill"
+                                style="width: 200px; background-color: crimson;"
+                                th:onclick="move('/member/join/select')">
+                            <span style="font-weight: 600; color: white; ">멤버 생성</span>
+                        </button>
+                        <div class="row">
+                            <th:block th:each="member, i : ${list}">
+                                <div class="col-4
+                                     text-center">
+                                    <div class="card" style="width: 18rem; margin: 10px; display: inline-block">
+                                        <img th:if="${member.PROFILE_ATTACH_ID == null || member.PROFILE_ATTACH_ID == ''}"
+                                             th:src="@{/img/common_profile.jpeg}"
+                                             class="card-img-top" alt="프로필입니다"/>
+                                        <div class="card-body">
+                                            <h5 class="card-title">[[${member.MEMBER_NM}]]</h5>
+                                            <p class="card-text">[[${member.MEMBER_INTRO}]]</p>
+                                            <p class="card-text">[[${member.MEMBERSHIP}]]</p>
+                                            <button
+                                                    type="button"
+                                                    class="btn rounded-pill"
+                                                    style="width: 200px; background-color: crimson;"
+                                                    th:onclick="accessMember([[${i}]])">
+                                                <span style="font-weight: 600; color: white; ">접속하기</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        function accessMember(i) {
+            localStorage.setItem("memberKey", i.current.MEMBER_KEY);
+            localStorage.setItem("memberPath", "memberMain");
+            localStorage.setItem("memberAddress", i.current.MEMBER_ADDRESS);
+            let memberLink = "/team/" + i.current.MEMBER_ADDRESS + "/main";
+            move(memberLink);
+        }
+    </script>
+</th:block>
+</html>

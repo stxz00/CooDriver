@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout2}">
+<th:block layout:fragment="content">
+    <div class="mr-0 ml-0" id="replaceSection">
+        <div class="col-12">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-11 mt-2 mb-2 jumbotron-content">
+                        <h1 class="display-4"></h1>
+                        <p class="lead">파일 보관함</p>
+                        <hr class="my-4">
+                        <div class="row">
+                            <div id="driveReplace">
+                                <div class="col text-left">
+                                    <th:block th:each="parent, i : ${parentDirectoryList}">
+                                        <div
+                                             style="display: inline-block; cursor: pointer; padding: 0px 3px 0px 3px; font-size: 20px; z-index: 12;"
+                                             th:class="${'parent-directory ' + 'did-' + parent.DIRECTORY_ID}"
+                                             th:onclick="moveIntoDirectory([[${i}]])"
+                                             ondrop="drop2(event)"
+                                             ondragover="dragover2(event)"
+                                        >
+                                            [[${parent.name}]]
+                                        </div>
+                                        <div style="display: inline-block; padding: 0px 3px 0px 3px; font-size: 20px;"> 〉 </div>
+                                    </th:block>
+                                </div>
+                                <button type="button"
+                                        class="btn rounded-pill "
+                                        style="width: 200px; background-color: crimson; margin: 10px 0px 10px 0px;"
+                                        th:onclick="openCreateDirectoryModal()">
+                                    <span style="font-weight: 600; color: white;">폴더 생성</span>
+                                </button>
+                                <button type="button"
+                                        class="btn rounded-pill file-delete-btn"
+                                        style="width: 200px; background-color: #6200EE; margin: 10px 0px 10px 0px;"
+                                        disabled="disabled"
+                                        th:onclick="deleteFilesAct()">
+                                    <span style="font-weight: 600; color: white;">파일 삭제</span>
+                                </button>
+                                <button type="button"
+                                        class="btn rounded-pill file-download-btn"
+                                        style="width: 200px; background-color: #6200EE; margin: 10px 0px 10px 0px;"
+                                        disabled="disabled"
+                                        th:onclick="downloadFilebyIdList()">
+                                    <span style="font-weight: 600; color: white;">파일 다운로드</span>
+                                </button>
+<!--                                <button type="button"-->
+<!--                                        class="btn rounded-pill file-delete-btn"-->
+<!--                                        style="width: 200px; background-color: #6200EE; margin: 10px 0px 10px 0px;"-->
+<!--                                        th:onclick="selectDirectoryWithSubList()">-->
+<!--                                    <span style="font-weight: 600; color: white;">테스트</span>-->
+<!--                                </button>-->
+                                <div class="col dropBox" style="padding: 10px; min-height: 600px;" ondragover="dragover(event)" ondragenter="dragenter(event)" onclick="cancelAllSelectList()">
+                                    <div class="file-ondragenter row"
+                                         ondragleave="dragleave(event)"
+                                         ondrop="drop(event)"
+                                         style="display: none; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;
+                                         background: transparent; font-size: 18px; color: #555; text-align: center; caret-color: transparent; z-index: 8;"
+                                    >
+<!--                                        <div class="file-ondragenter-content text-center col"-->
+<!--                                             style="-->
+<!--                                              display: flex;-->
+<!--                                              justify-content: center;-->
+<!--                                              align-items: center;-->
+<!--                                              min-height: 100vh;-->
+<!--                                              z-index: 9;-->
+<!--                                            ">-->
+<!--                                            <div class="row text-center">-->
+<!--                                                <img class="col-12" style="width: 150px; height: 150px; margin: auto;" th:src="@{/img/dropbox.png}"></img>-->
+<!--                                                <div class="col-12" style="z-index: 9; margin-top: 10px;">첨부할 파일, 이미지 등을 드래그하여 놓아주세요</div>-->
+<!--                                            </div>-->
+
+<!--                                        </div>-->
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 text-center" style="color: gray; cursor: pointer;" onclick="listHideAndShow('directory-list-col')">
+                                            <div th:class="hr-sect">
+                                                <img style="display: inline-block; margin-right: 5px;"
+                                                     th:src="@{/img/arrow-down-drop-circle-outline.PNG}"
+                                                />
+                                                <div
+                                                    class="directory-list-col-text"
+                                                    style="display: inline-block"
+                                                >
+                                                    폴더
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col text-left directory-list-col">
+                                            <div    th:if="${prevDirectory}"
+                                                    th:class="${'card ' + 'did-' + prevDirectory.DIRECTORY_ID}"
+                                                    style="width: 175px; height: 165px; margin: 5px; display: inline-block; z-index: 12; text-align: center;" th:ondblclick="moveIntoPrevDirectory([[${prevDirectory}]])"
+                                                    ondrop="drop2(event)" ondragover="dragover2(event)" ondrag="onDrag(event)" draggable="false">
+                                                <img
+                                                        th:src="@{/img/directory_icon.png}"
+                                                        th:class="${'card-img-top stop-drag ' + 'did-' +  prevDirectory.DIRECTORY_ID}"
+                                                        style="width: 130px; height: 130px; margin: 5px 0px 5px 0px;"
+                                                        alt="디렉토리입니다"
+                                                />
+                                                <div
+                                                        th:class="${'card-body ' + 'did-' +  prevDirectory.DIRECTORY_ID}" style="padding: 0px 10px 0px 10px; "
+                                                >
+                                                    <div th:class="${'card-title ' + 'did-' +  prevDirectory.DIRECTORY_ID}"
+                                                         style="font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; vertical-align: center;">
+                                                        이전 폴더로..
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <th:block th:each="directory, i : ${directoryList}">
+                                                <div
+                                                     th:class="${'card ' + 'did-' + directory.DIRECTORY_ID}"
+                                                     style="width: 175px; height: 165px; margin: 5px;display: inline-block; z-index: 12; text-align: center;" th:ondblclick="moveIntoDirectory([[${i}]])"
+                                                     onclick="selectDirectory(event)" ondrop="drop2(event)" ondragover="dragover2(event)" ondrag="onDrag(event)" draggable="true">
+                                                    <img
+                                                            th:src="@{/img/directory_icon.png}"
+                                                            th:class="${'card-img-top stop-drag ' + 'did-' +  directory.DIRECTORY_ID}"
+                                                            style="width: 130px; height: 130px; margin: 5px 0px 5px 0px;"
+                                                            alt="디렉토리입니다"
+                                                    />
+                                                    <div
+                                                         th:class="${'card-body ' + 'did-' +  directory.DIRECTORY_ID}" style="padding: 0px 10px 0px 10px; "
+                                                    >
+                                                        <div th:class="${'card-title ' + 'did-' +  directory.DIRECTORY_ID}"
+                                                             style="font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; vertical-align: center;">
+                                                            [[${directory.DIRECTORY_NM}]]
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th:block>
+                                        </div>
+                                    </div>
+
+                                    <div th:class="row">
+                                        <div class="col-12 text-center" style="color: gray; cursor: pointer;" onclick="listHideAndShow('drive-upload-mine')">
+                                            <div th:class="hr-sect">
+                                                <img style="display: inline-block; margin-right: 5px;"
+                                                     th:src="@{/img/arrow-down-drop-circle-outline.PNG}"
+                                                />
+                                                <div
+                                                        class="drive-upload-mine-text"
+                                                        style="display: inline-block"
+                                                >
+                                                    내가 드라이브에 업로드한 파일
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col text-left drive-upload-mine">
+                                            <th:block th:each="file, i : ${type1List}">
+                                                <div th:class="${ 'card fid-' + file.FILE_ID}" th:id="${file.FILE_ID}"
+                                                     style="width: 175px; height: 165px; max-height: 200px; margin: 5px; display: inline-block; z-index: 12; text-align: center; border-radius: 5px;"
+                                                     onclick="selectFile(event)" th:ondblclick="downloadFile([[${i}]])" draggable="true" ondrag="onDrag(event)">
+                                                    <img
+                                                            th:src="@{/img/file_icon.png}"
+                                                            th:class="${ 'card-img-top stop-drag fid-' + file.FILE_ID}"
+                                                            style="width: 130px; height: 130px; margin: 5px 0px 5px 0px;"
+                                                            alt="파일입니다"/>
+                                                    <div th:class="${ 'card-body fid-' + file.FILE_ID}" style="padding: 0px 10px 0px 10px;">
+                                                        <div
+                                                                th:class="${ 'card-title fid-' + file.FILE_ID}"
+                                                                style="font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; vertical-align: center;"
+                                                                th:text="${file.FILE_NM}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th:block>
+                                        </div>
+                                    </div>
+
+                                    <div th:class="row">
+                                        <div class="col-12 text-center" style="color: gray; cursor: pointer;" onclick="listHideAndShow('drive-upload-others')">
+                                            <div th:class="hr-sect">
+                                                <img style="display: inline-block; margin-right: 5px;"
+                                                     th:src="@{/img/arrow-down-drop-circle-outline.PNG}"
+                                                />
+                                                <div
+                                                        class="drive-upload-others-text"
+                                                        style="display: inline-block"
+                                                >
+                                                    다른 사용자가 드라이브에 업로드한 파일
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col text-left drive-upload-others">
+                                            <th:block th:each="file, i : ${type2List}">
+                                                <div th:class="${ 'card not-move fid-' + file.FILE_ID}" th:id="${file.FILE_ID}"
+                                                     style="width: 175px; height: 165px; max-height: 200px; margin: 5px; display: inline-block; z-index: 12; text-align: center; border-radius: 5px;"
+                                                     onclick="selectFile(event)" th:ondblclick="downloadFile([[${i}]])" draggable="false" ondrag="onDrag(event)">
+                                                    <img
+                                                            th:src="@{/img/file_icon.png}"
+                                                            th:class="${ 'card-img-top not-move stop-drag fid-' + file.FILE_ID}"
+                                                            style="width: 130px; height: 130px; margin: 5px 0px 5px 0px;"
+                                                            alt="파일입니다"/>
+                                                    <div th:class="${ 'card-body not-move not-remove fid-' + file.FILE_ID}" style="padding: 0px 10px 0px 10px;">
+                                                        <div
+                                                                th:class="${ 'card-title not-move fid-' + file.FILE_ID}"
+                                                                style="font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; vertical-align: center;"
+                                                                th:text="${file.FILE_NM}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th:block>
+                                        </div>
+                                    </div>
+                                    <div th:class="row">
+                                        <div class="col-12 text-center" style="color: gray; cursor: pointer;" onclick="listHideAndShow('another-upload-mine')">
+                                            <div th:class="hr-sect">
+                                                <img style="display: inline-block; margin-right: 5px;"
+                                                     th:src="@{/img/arrow-down-drop-circle-outline.PNG}"
+                                                />
+                                                <div
+                                                        class="another-upload-mine-text"
+                                                        style="display: inline-block"
+                                                >
+                                                    내가 첨부한 파일
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col text-left another-upload-mine">
+                                            <th:block th:each="file, i : ${type3To1List}">
+                                                <div th:class="${ 'card fid-' + file.FILE_ID}" th:id="${file.FILE_ID}"
+                                                     style="width: 175px; height: 165px; max-height: 200px; margin: 5px; display: inline-block; z-index: 12; text-align: center; border-radius: 5px;"
+                                                     onclick="selectFile(event)" th:ondblclick="downloadFile([[${i}]])" draggable="true" ondrag="onDrag(event)">
+                                                    <img
+                                                            th:src="@{/img/file_icon.png}"
+                                                            th:class="${ 'card-img-top stop-drag fid-' + file.FILE_ID}"
+                                                            style="width: 130px; height: 130px; margin: 5px 0px 5px 0px;"
+                                                            alt="파일입니다"/>
+                                                    <div th:class="${ 'card-body not-remove fid-' + file.FILE_ID}" style="padding: 0px 10px 0px 10px;">
+                                                        <div
+                                                                th:class="${ 'card-title fid-' + file.FILE_ID}"
+                                                                style="font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; vertical-align: center;"
+                                                                th:text="${file.FILE_NM}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th:block>
+                                            <th:block th:each="file, i : ${type3To2List}">
+                                                <div th:class="${ 'card fid-' + file.FILE_ID}" th:id="${file.FILE_ID}"
+                                                     style="width: 175px; height: 165px; max-height: 200px; margin: 5px; display: inline-block; z-index: 12; text-align: center; border-radius: 5px;"
+                                                     onclick="selectFile(event)" th:ondblclick="downloadFile([[${i}]])" draggable="true" ondrag="onDrag(event)">
+                                                    <img
+                                                            th:src="@{/img/file_icon.png}"
+                                                            th:class="${ 'card-img-top stop-drag fid-' + file.FILE_ID}"
+                                                            style="width: 130px; height: 130px; margin: 5px 0px 5px 0px;"
+                                                            alt="파일입니다"/>
+                                                    <div th:class="${ 'card-body not-remove fid-' + file.FILE_ID}" style="padding: 0px 10px 0px 10px;">
+                                                        <div
+                                                                th:class="${ 'card-title fid-' + file.FILE_ID}"
+                                                                style="font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; vertical-align: center;"
+                                                                th:text="${file.FILE_NM}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th:block>
+                                        </div>
+                                    </div>
+                                    <div th:class="row">
+                                        <div class="col-12 text-center" style="color: gray; cursor: pointer;" onclick="listHideAndShow('another-upload-others', event)">
+                                            <div th:class="hr-sect">
+                                                <img style="display: inline-block; margin-right: 5px;"
+                                                     th:src="@{/img/arrow-down-drop-circle-outline.PNG}"
+                                                />
+                                                <div
+                                                        class="another-upload-others-text"
+                                                        style="display: inline-block"
+                                                >
+                                                    다른 사용자가 첨부한 파일
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col text-left another-upload-others">
+                                            <th:block th:each="file, i : ${type4To1List}">
+                                                <div th:class="${ 'card not-move fid-' + file.FILE_ID}" th:id="${file.FILE_ID}"
+                                                     style="width: 175px; height: 165px; max-height: 200px; margin: 5px; display: inline-block; z-index: 12; text-align: center; border-radius: 5px;"
+                                                     onclick="selectFile(event)" th:ondblclick="downloadFile([[${i}]])" draggable="false" ondrag="onDrag(event)">
+                                                    <img
+                                                            th:src="@{/img/file_icon.png}"
+                                                            th:class="${ 'card-img-top not-move stop-drag fid-' + file.FILE_ID}"
+                                                            style="width: 130px; height: 130px; margin: 5px 0px 5px 0px;"
+                                                            alt="파일입니다"/>
+                                                    <div th:class="${ 'card-body not-move fid-' + file.FILE_ID}" style="padding: 0px 10px 0px 10px;">
+                                                        <div
+                                                                th:class="${ 'card-title not-move not-remove fid-' + file.FILE_ID}"
+                                                                style="font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; vertical-align: center;"
+                                                                th:text="${file.FILE_NM}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th:block>
+                                            <th:block th:each="file, i : ${type4To2List}">
+                                                <div th:class="${ 'card not-move fid-' + file.FILE_ID}" th:id="${file.FILE_ID}"
+                                                     style="width: 175px; height: 165px; max-height: 200px; margin: 5px; display: inline-block; z-index: 12; text-align: center; border-radius: 5px;"
+                                                     onclick="selectFile(event)" th:ondblclick="downloadFile([[${i}]])" draggable="false" ondrag="onDrag(event)">
+                                                    <img
+                                                            th:src="@{/img/file_icon.png}"
+                                                            th:class="${ 'card-img-top not-move stop-drag fid-' + file.FILE_ID}"
+                                                            style="width: 130px; height: 130px; margin: 5px 0px 5px 0px;"
+                                                            alt="파일입니다"/>
+                                                    <div th:class="${ 'card-body not-move fid-' + file.FILE_ID}" style="padding: 0px 10px 0px 10px;">
+                                                        <div
+                                                                th:class="${ 'card-title not-move not-remove fid-' + file.FILE_ID}"
+                                                                style="font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin: 0px; vertical-align: center;"
+                                                                th:text="${file.FILE_NM}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th:block>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <hr class="my-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 99;">
+        <div class="toast align-items-center upload-toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex" style="width: 500px;">
+                <div class="toast-header upload-toast-header" style="height: 50px; padding: 10px;">
+                    <span style="font-size: 15px; color: black; margin: auto;">업로드하였습니다.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 99;">
+        <div class="toast align-items-center waiting-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false" style="background-color: #6200EE;">
+            <div class="d-flex" style="width: 500px;">
+                <div class="toast-header waiting-toast-header" style="background-color: #6200EE; height: 50px; padding: 10px;">
+                    <span style="font-size: 15px; color: white; margin:auto">첨부할 파일, 이미지 등을 드래그하여 놓아주세요</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const $drop = document.querySelector(".dropBox");
+
+        let files = "";
+        let count = 0;
+        let dragFile = "";
+        let fileToDirectoryId = "";
+        let selectDirectoryIdList = [];
+        let deleteDirectoryCount = 0;
+        let directoryList = [];
+        let isError = false;
+
+        // $(document).ready(function() {
+        //     $('.waiting-toast').toast({autohide: false});
+        // });
+
+
+        function onDrag(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dragFile = e.target;
+             // console.log("dragFile", dragFile);
+
+            let text = "파일을 드래그하여 폴더에 이동시킬 수 있습니다.";
+            if(!($(".waiting-toast-header span").text() === text)) {
+                $(".waiting-toast-header span").text(text);
+            }
+            // console.log(!document.querySelector(".waiting-toast").classList.contains("showing"));
+            if(!document.querySelector(".waiting-toast").classList.contains("showing")) {
+                $('.waiting-toast').toast('show');
+            }
+            return;
+        }
+
+        function dragover(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(".file-ondragenter").css("display", "block");
+            let text = "첨부할 파일, 이미지 등을 드래그하여 놓아주세요.";
+            if(!($(".waiting-toast-header span").text() === text)) {
+                $(".waiting-toast-header span").text(text);
+            }
+
+            if(!document.querySelector(".waiting-toast").classList.contains("showing")) {
+                $('.waiting-toast').toast('show');
+            }
+            return;
+        }
+
+        function dragover2(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            let text = "첨부할 파일, 이미지 등을 드래그하여 폴더에 업로드할 수 있습니다.";
+            if(!($(".waiting-toast-header span").text() === text)) {
+                $(".waiting-toast-header span").text(text);
+            }
+
+            if(!document.querySelector(".waiting-toast").classList.contains("showing")) {
+                $('.waiting-toast').toast('show');
+            }
+            return;
+        }
+
+        function dragenter (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function dragleave (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(".file-ondragenter").css("display", "none");
+            $('.waiting-toast').toast('hide');
+        }
+
+        function drop2 (e) {
+            e.preventDefault();
+            $('.waiting-toast').toast('hide');
+
+            console.log("폴더에 드롭", e);
+            console.log("e", e.target);
+
+            let classList = e.target.classList;
+            fileToDirectoryId = "";
+            for ( let list of classList ) {
+                if( list.startsWith('did-') ) {
+                    fileToDirectoryId = list.replace("did-", "");
+                }
+            }
+            console.log("directoryId", fileToDirectoryId);
+
+            files = [...e.dataTransfer?.files];
+            filesLength = files.length;
+
+            if(dragFile !== "") {
+                console.log("dragFile", dragFile);
+                let moveFileId = "";
+                let moveDirecotoryId = "";
+                const classList = dragFile.classList;
+                for ( let list of classList ) {
+                    console.log("뭐지", list);
+
+                    if( list.startsWith("fid-") ) {
+                        moveFileId = list.replace("fid-", "");
+                    }
+
+                    if( list.startsWith("did-") ) {
+                        moveDirecotoryId = list.replace("did-", "");
+                    }
+                }
+                // console.log("moveFileId", moveFileId);
+                // console.log("moveDirecotoryId", moveDirecotoryId);
+
+                moveFileToDirectory( fileToDirectoryId, moveFileId, moveDirecotoryId);
+                dragFile="";
+            } else if( filesLength !== 0) {
+                console.log("해당 디렉터리로 신규 파일 업로드");
+                console.log(files);
+                console.log("파일렝스 : " + files.length);
+
+                count = 0;
+                let uploadFilesSize = 0;
+
+                for ( let file of files ) {
+                    uploadFilesSize += file.size;
+                    if(file.size == 0 && (file.type == "" || file.type == null)) {
+                        $("#cancleTitle").text("폴더 업로드");
+                        $("#cancleText").text("폴더는 압축하여 업로드해주세요.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                        $drop.classList.remove("active");
+                        return;
+                    }
+                }
+
+                // console.log("uploadFilesSize", uploadFilesSize);
+
+                let promise = new Promise( (resolve, reject) => {
+                    resolve(driveSize())
+                })
+
+                promise.then( (size) => {
+                    let expectedSize = uploadFilesSize + size.usedSize;
+                    let totalUsualSize = size.totalUsualSize*1024*1024*1024
+                    console.log(expectedSize);
+                    console.log(totalUsualSize);
+
+                    if(expectedSize <= totalUsualSize) {
+                        driveUpload();
+                    } else {
+                        $("#cancleTitle").text("드라이브 용량 초과");
+                        $("#cancleText").text("사용하실 수 있는 개인 드라이브 저장 용량을 초과하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+                })
+            } else {
+
+            }
+        }
+
+        function moveFileToDirectory( directoryId, moveFileId, moveDirectoryId ) {
+
+            if ( notMoveIdList.length !== 0 ) {
+                $("#cancleTitle").text("파일 이동 실패");
+                $("#cancleText").text("다른 사용자가 업로드한 파일은 이동이 불가합니다.");
+                $("#cancleBtn").text("확인");
+                $("#cancleModal").modal("toggle");
+                cancelAllSelectList();
+                return;
+            }
+
+            const tbAttchFileParam = {
+                fileId: moveFileId,
+                directoryId: directoryId,
+            }
+
+            let moveFileIdlist = [];
+            if( moveFileId !== "" &&
+                moveFileId !== undefined &&
+                moveFileId !== null
+            ) {
+             moveFileIdlist.push(tbAttchFileParam);
+            }
+
+            let moveDirecoryIdList = [];
+
+            if( moveDirectoryId !== "" &&
+                moveDirectoryId !== undefined &&
+                moveDirectoryId !== null
+            ) {
+                moveDirecoryIdList.push(moveDirectoryId);
+            }
+
+            for ( let fList of selectFileIdList ) {
+                let tbAttchFileParam = {
+                    fileId : fList.replace( ".fid-", "" ),
+                    directoryId: directoryId
+                }
+                moveFileIdlist.push( tbAttchFileParam );
+            }
+
+            for ( let dList of selectDirectoryIdList ) {
+                moveDirecoryIdList.push( dList.replace( ".did-", "" ) );
+            }
+            console.log("moveDirecoryIdList", moveDirecoryIdList);
+
+            $.ajax( {
+                url: "/file/move/directory",
+                type: "POST",
+                data: JSON.stringify({ "attchFileParamList" : moveFileIdlist, "listData" : moveDirecoryIdList, "directoryId" : directoryId }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+            } ).done ( (data) =>{
+                if( data == 1 ) {
+                    reloadCurrentPage();
+                } else {
+                    $("#cancleTitle").text("파일 및 폴더 이동 실패.");
+                    $("#cancleText").text("파일 이동에 실패하였습니다. 선택한 파일과 폴더 내 본인이 업로드한 파일이 아니면 이동할 수 없습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                }
+            } ).fail( () => {
+                $("#cancleTitle").text("파일 및 폴더 이동 실패.");
+                $("#cancleText").text("파일 및 폴더 이동에 실패하였습니다. 선택한 파일과 폴더 내 본인이 업로드한 파일이 아니면 이동할 수 없습니다.");
+                $("#cancleBtn").text("확인");
+                $("#cancleModal").modal("toggle");
+            })
+        }
+
+        function drop (e) {
+            console.log("드롭");
+            e.preventDefault();
+            $('.waiting-toast').toast('hide');
+
+            if(dragFile !== "" && dragFile !== null) {
+                dragFile = "";
+                $(".file-ondragenter").css("display", "none");
+                return;
+            }
+
+            $('.waiting-toast').toast('hide');
+            // 드롭된 파일 리스트 가져오기
+            files = [...e.dataTransfer?.files];
+
+            filesLength = files.length;
+            count = 0;
+
+            console.log("files" ,files);
+
+            let uploadFilesSize = 0;
+
+            for ( let file of files ) {
+                uploadFilesSize += file.size;
+                if(file.size == 0 && (file.type == "" || file.type == null)) {
+                    $("#cancleTitle").text("폴더 업로드");
+                    $("#cancleText").text("폴더는 압축하여 업로드해주세요.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                    $drop.classList.remove("active");
+                    return;
+                }
+            }
+
+            // console.log("uploadFilesSize", uploadFilesSize);
+
+            let promise = new Promise( (resolve, reject) => {
+                resolve(driveSize())
+            })
+
+            promise.then( (size) => {
+                let expectedSize = uploadFilesSize + size.usedSize;
+                let totalUsualSize = size.totalUsualSize*1024*1024*1024
+                console.log(expectedSize);
+                console.log(totalUsualSize);
+
+                if(expectedSize <= totalUsualSize) {
+                    driveUpload();
+                } else {
+                    $("#cancleTitle").text("드라이브 용량 초과");
+                    $("#cancleText").text("사용하실 수 있는 개인 드라이브 저장 용량을 초과하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                }
+            });
+            $(".file-ondragenter").css("display", "none");
+        }
+
+        // // ondragover 이벤트가 없으면 onDrop 이벤트가 실핻되지 않습니다.
+        // $drop.ondragover = (e) => {
+        //     e.preventDefault();
+        //     e.stopPropagation();
+        //     $(".file-ondragenter").css("display", "block");
+        // }
+        //
+        // // 드래그한 파일이 최초로 진입했을 때
+        // $drop.ondragenter = (e) => {
+        //     e.preventDefault();
+        //     e.stopPropagation();
+        // }
+        //
+        // // 드래그한 파일이 영역을 벗어났을 때
+        // $drop.ondragleave = (e) => {
+        //     e.preventDefault();
+        //     e.stopPropagation();
+        // }
+        //
+        // document.querySelector(".file-ondragenter").ondragleave = (e) => {
+        //     e.preventDefault();
+        //     e.stopPropagation();
+        //     $(".file-ondragenter").css("display", "none");
+        // }
+        //
+        // // 드래그한 파일 객체가 해당 영역에 놓였을 때
+        // $drop.ondrop = (e) => {
+        //     e.preventDefault();
+        //
+        //     // 드롭된 파일 리스트 가져오기
+        //     files = [...e.dataTransfer?.files];
+        //
+        //     filesLength = files.length;
+        //     count = 0;
+        //
+        //     // console.log(files);
+        //
+        //     let uploadFilesSize = 0;
+        //
+        //     for ( let file of files ) {
+        //         uploadFilesSize += file.size;
+        //         if(file.size == 0 && (file.type == "" || file.type == null)) {
+        //             $("#cancleTitle").text("폴더 업로드");
+        //             $("#cancleText").text("폴더는 압축하여 업로드해주세요.");
+        //             $("#cancleBtn").text("확인");
+        //             $("#cancleModal").modal("toggle");
+        //             $drop.classList.remove("active");
+        //             return;
+        //         }
+        //     }
+        //
+        //     // console.log("uploadFilesSize", uploadFilesSize);
+        //
+        //     let promise = new Promise( (resolve, reject) => {
+        //         resolve(driveSize())
+        //     })
+        //
+        //     promise.then( (size) => {
+        //         let expectedSize = uploadFilesSize + size.usedSize;
+        //         let totalUsualSize = size.totalUsualSize*1024*1024*1024
+        //         console.log(expectedSize);
+        //         console.log(totalUsualSize);
+        //
+        //         if(expectedSize <= totalUsualSize) {
+        //             upload();
+        //         }
+        //     })
+        //
+        //     // $drop.classList.remove("active");
+        //     $(".file-ondragenter").css("display", "none");
+        // }
+
+
+
+        function driveUpload() {
+            if( count == 0 ) {
+                let text = "파일을 업로드중입니다. 잠시만 기다려주세요.";
+                $(".upload-toast-header span").text(text);
+                $('.upload-toast').toast('show');
+            }
+
+            if( count == filesLength ) {
+                // console.log("끝")
+                loadMemberUserDriveSize();
+                $('.upload-toast').toast('hide');
+                let text = count + "개를 업로드하였습니다.";
+                $(".upload-toast-header span").text(text);
+                $('.upload-toast').toast('show');
+                return;
+            }
+            let formData = new FormData();
+            let directoryId = window.location.href.substring(window.location.href.lastIndexOf("/") + 1, window.location.href.length);
+            if ( fileToDirectoryId !== null && fileToDirectoryId !== "" ) {
+                directoryId = fileToDirectoryId;
+            }
+
+            formData.append("file", files[count]);
+            formData.append("fileUsage", "drive");
+            formData.append("directoryId", directoryId);
+            let testLink = location.href;
+            let onlyDrive = "N";
+            if( testLink.indexOf("/drive/") > -1 ) {
+                onlyDrive = "Y";
+            }
+            formData.append("onlyDrive", onlyDrive);
+
+            $.ajax({
+                url: "/file/uploadFile",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false
+            }).done( (data) => {
+                console.log(data)
+
+                if( data == null || data == "") {
+                    $("#cancleTitle").text("파일 추가 실패");
+                    $("#cancleText").text("파일을 추가하는데 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                    count = filesLength
+                    return;
+                }
+
+                count++;
+                reloadCurrentPage();
+                driveUpload();
+            }).fail( (a,b,c) => {
+                console.log(a,b,c);
+            })
+        }
+
+        function reloadCurrentPage() {
+            let directoryId = window.location.href.substring(window.location.href.lastIndexOf("/") + 1, window.location.href.length);
+            $.ajax({
+                url: "/replace" + "/" + localStorage.getItem("memberAddress") + "/drive/" + directoryId,
+                type: "GET"
+            }).done((list) => {
+                $("#replaceSection").replaceWith(list);
+                notMoveIdList = [];
+                notRemoveIdList = [];
+            }).fail(() => {
+                $("#cancleTitle").text("페이지 로드 실패");
+                $("#cancleText").text("페이지를 로드하는데 실패하였습니다.");
+                $("#cancleBtn").text("확인");
+                $("#cancleModal").modal("toggle");
+            })
+        }
+
+
+        function openCreateDirectoryModal() {
+            $("#createDirectoryModal").modal("toggle");
+        }
+
+        // function moveIntoDirectory(i) {
+        //     let memberPath = "drive/" + i.current.DIRECTORY_ID;
+        //     localStorage.setItem("memberPath", memberPath);
+        //     memberLoadPage();
+        // }
+
+        function moveIntoDirectory(i) {
+            let id = i.current.DIRECTORY_ID;
+            if( id === "main" ) {
+                id = "drive";
+            }
+
+            location.href= "/team" + "/" +localStorage.getItem("memberAddress") + "/drive/" + id;
+        }
+
+        function moveIntoPrevDirectory(prevDirectory) {
+            let id = prevDirectory.DIRECTORY_ID;
+            if( id === "main" ) {
+                id = "drive";
+            }
+
+            location.href= "/team" + "/" +localStorage.getItem("memberAddress") + "/drive/" + id;
+        }
+
+        let notRemoveIdList = [];
+        let notMoveIdList = [];
+
+        function selectFile( e ) {
+            e.stopImmediatePropagation();
+            let classList = e.target.classList;
+            let selectFileId = "";
+            for ( let list of classList ) {
+                if( list.startsWith("fid-") ) {
+                    selectFileId = list;
+                }
+            }
+            selectFileId = "." + selectFileId;
+            console.log("selectFileId", selectFileId);
+            let fileDiv = document.querySelectorAll(selectFileId);
+            //console.log(fileDiv);
+
+            let total = fileDiv.length;
+            let count = 0;
+            for ( let element of fileDiv ) {
+                count++;
+                if( count === total - 1 ) {
+                    console.log("elcl", element.classList);
+                    if( element.classList.contains("select-File") ) {
+                        for ( let i = 0; i < selectFileIdList.length; i++ ) {
+                            if( selectFileIdList[i] === selectFileId) {
+                                selectFileIdList.splice( i, 1 );
+                            }
+                        }
+                        element.classList.remove("select-File");
+                    } else {
+                        selectFileIdList.push(selectFileId);
+                        element.classList.add("select-File");
+                    }
+                    console.log("selectFileIdList", selectFileIdList);
+
+                    // 다른 폴더 이동이 불가능 한 파일인경우
+                    if ( element.classList.contains("not-move") ) {
+                        let haveNotMoveIdList = false;
+                        // 리스트에 존재하면 빼고
+                        for ( let i = 0; i < notMoveIdList.length; i++ ) {
+                            if ( notMoveIdList[i] === selectFileId ) {
+                                notMoveIdList.splice( i, 1 );
+                                haveNotMoveIdList = true;
+                            }
+                        }
+                        // 존재하지 않으면 추가
+                        if ( !haveNotMoveIdList ) {
+                            notMoveIdList.push( selectFileId );
+                        }
+                    }
+
+                    // 삭제할 수 없는 파일인 경우
+                    if ( element.classList.contains("not-remove") ) {
+                        let haveNotRemoveIdList = false;
+                        // 리스트에 존재하면 빼고
+                        for ( let i = 0; i < notRemoveIdList.length; i++ ) {
+                            if ( notRemoveIdList[i] === selectFileId ) {
+                                notRemoveIdList.splice( i, 1 );
+                                haveNotRemoveIdList = true;
+                            }
+                        }
+                        // 존재하지 않으면 추가
+                        if ( !haveNotRemoveIdList ) {
+                            notRemoveIdList.push( selectFileId );
+                        }
+                    }
+
+                    console.log("notMoveIdList", notMoveIdList);
+                    console.log("notRemoveIdList", notRemoveIdList);
+
+                    if( selectDirectoryIdList.length > 0 || selectFileIdList.length > 0 ) {
+                        document.querySelector(".file-delete-btn").disabled = false;
+                        document.querySelector(".file-download-btn").disabled = false;
+                    } else {
+                        document.querySelector(".file-delete-btn").disabled = true;
+                        document.querySelector(".file-download-btn").disabled = true;
+                    }
+                }
+            }
+
+        }
+
+        function deleteFilesAct() {
+            deleteFileCount = 0;
+            deleteDirectoryCount = 0;
+
+            if ( notRemoveIdList.length !== 0 ) {
+                $("#cancleTitle").text("파일 삭제 실패");
+                $("#cancleText").text("내가 드라이브에 업로드한 파일만 삭제 가능합니다.");
+                $("#cancleBtn").text("확인");
+                $("#cancleModal").modal("toggle");
+                return;
+            }
+
+            // 1. 선택한 파일들 먼저 삭제
+            let promise1 = new Promise( ( resolve, reject ) => {
+                resolve(deleteFiles());
+            } )
+
+            // 2. 디렉토리들 삭제
+            let promise2 = new Promise( ( resolve, reject ) => {
+                resolve(selectDirectoryWithSubList());
+            } );
+
+            // 3. 리로드
+            let promise3 = new Promise( ( resolve, reject ) => {
+                resolve( reloadCurrentPage());
+            } );
+
+            promise1.then( () => {
+                promise2.then( () => {
+                    if (isError === true) {
+                        isError = false;
+                        return;
+                    }
+                    promise3.then( () => {
+                        $('.upload-toast').toast('hide');
+                        loadMemberUserDriveSize();
+                        // let text = deleteFileCount + "개의 파일을 삭제하였습니다.";
+                        // if( deleteDirectoryCount !== 0 ) {
+                        //     text = deleteFileCount + "개의 파일과 " + deleteDirectoryCount + "개의 폴더를 삭제하였습니다.";
+                        // }
+                        let text = "파일 또는 폴더 삭제를 완료하였습니다.";
+                        $(".upload-toast-header span").text(text);
+                        $('.upload-toast').toast('show');
+                    })
+                } );
+            });
+        }
+
+        //선택한 디렉토리들의 각 하위 디렉토리 모두 찾아서 가장 마지막 부터 파일 삭제 -> 디렉토리 삭제 후 다음 진행
+        async function selectDirectoryWithSubList() {
+            if ( selectDirectoryIdList === undefined ||
+                selectDirectoryIdList === null ||
+                selectDirectoryIdList.length === 0 ) {
+                return;
+            }
+
+            let directoryAndFilesList = [];
+            count = 0;
+
+            let promise1 = new Promise( ( resolve, reject ) => {
+                resolve( allDirectoryList() );
+            } )
+
+            // 1. 선택한 디렉토리들에서 하위 디렉토리 및 각 디렉토리에 있는 파일들까지 모두 찾기
+            promise1.then( ( list ) => {
+                if ( list === 99 ) {
+                    $("#cancleTitle").text("삭제할 수 없는 파일 존재");
+                    $("#cancleText").text("폴더 내 삭제할 수 없는 파일이 존재합니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                    isError = true;
+                    return;
+                }
+
+                directoryAndFilesList = list;
+                console.log(directoryAndFilesList);
+
+                console.log(directoryAndFilesList.length);
+
+                for ( let directoryAndFiles of directoryAndFilesList ) {
+                    console.log("----------")
+                    console.log("directoryAndFiles", directoryAndFiles);
+                    filesAndDirectoryDelete(directoryAndFiles);
+                    if ( isError === true ) {
+                        $("#cancleTitle").text("파일 삭제 실패");
+                        $("#cancleText").text("파일을 삭제하는데 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                        isError = false;
+                        return;
+                    }
+                }
+            } )
+        }
+
+
+        function allDirectoryList () {
+            let listData = [];
+            for ( let directoryId of selectDirectoryIdList ) {
+                listData.push( directoryId.replace( ".did-", "" ) )
+            }
+
+            $.ajax({
+                url: "/directory/select/allDirectoryList",
+                type: "POST",
+                data: JSON.stringify( { "listData" : listData } ),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async: false,
+            }).done( ( list ) => {
+                console.log(list);
+                directoryList = list;
+            } );
+            return directoryList;
+        }
+
+        async function filesAndDirectoryDelete( directoryAndFiles ) {
+            // 파일 및 디렉토리 삭제 도중 에러 발생 시 isError true로 변경.
+            if ( isError === true ) {
+                return;
+            }
+            console.log("좀 보자",directoryAndFiles);
+
+            if ( directoryAndFiles.attchFileParamList.length !== 0 ||
+                directoryAndFiles.attchFileParamList.length !== deleteDirectoryCount ) {
+                $.ajax( {
+                    url: "/file/delete",
+                    type: "POST",
+                    data: JSON.stringify({ "fileId" : directoryAndFiles.attchFileParamList[deleteDirectoryCount].fileId }),
+                    async: false,
+                    dataType: "json",
+                    contentType: "application/json; charset=utf8"
+                } ).done( ( data ) => {
+                    if ( data === 1 ) {
+                        deleteDirectoryCount++;
+                        filesAndDirectoryDelete(directoryAndFiles);
+                    } else {
+                        console.log("파일 삭제 실패");
+                        isError = true;
+                        $("#cancleTitle").text("파일 삭제 실패");
+                        $("#cancleText").text("파일을 삭제하는데 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                        return;
+                    }
+                } ).fail( () => {
+                    console.log("파일 삭제 실패");
+                    isError = true;
+                    $("#cancleTitle").text("파일 삭제 실패");
+                    $("#cancleText").text("파일을 삭제하는데 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                    return;
+                } );
+            }
+
+            if( directoryAndFiles.attchFileParamList.length === 0 ||
+                directoryAndFiles.attchFileParamList.length === deleteDirectoryCount
+            ) {
+                ///디렉토리 삭제 .fail시 isError true로 변경
+                console.log("확인사항", directoryAndFiles);
+                $.ajax({
+                    url: "/directory/delete",
+                    type: "POST",
+                    data: directoryAndFiles.directoryId,
+                    async: false,
+                    dataType: "json",
+                    contentType: "application/json; charset=utf8"
+                } ).done( (data) => {
+                    if ( data !== 1) {
+                        console.log("디렉토리 삭제 실패")
+                        $("#cancleTitle").text("디렉토리 삭제 실패");
+                        $("#cancleText").text("디렉토리를 삭제하는데 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                        isError = true;
+                        return;
+                    } else {
+                        deleteDirectoryCount = 0;
+                    }
+                }).fail( () => {
+                    console.log("디렉토리 삭제 실패")
+                    isError = true;
+                    $("#cancleTitle").text("디렉토리 삭제 실패");
+                    $("#cancleText").text("디렉토리를 삭제하는데 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                    return;
+                } )
+            }
+        }
+
+
+
+        function selectDirectory( e ) {
+            e.stopImmediatePropagation();
+            let classList = e.target.classList;
+            let selectDirectoryId = "";
+            for ( let list of classList ) {
+                if( list.startsWith("did-") ) {
+                    selectDirectoryId = list;
+                }
+            }
+            selectDirectoryId = "." + selectDirectoryId;
+            console.log("selectDirectoryId", selectDirectoryId);
+            let directoryDiv = document.querySelectorAll(selectDirectoryId);
+            //console.log(fileDiv);
+
+            let total = directoryDiv.length;
+            let count = 0;
+            for ( let element of directoryDiv ) {
+                count++;
+                if( count === total - 1 ) {
+                    if( element.classList.contains("select-directory") ) {
+                        for ( let i = 0; i < selectDirectoryIdList.length; i++ ) {
+                            if( selectDirectoryIdList[i] === selectDirectoryId) {
+                                selectDirectoryIdList.splice( i, 1 );
+                            }
+                        }
+                        element.classList.remove("select-directory");
+                    } else {
+                        selectDirectoryIdList.push(selectDirectoryId);
+                        element.classList.add("select-directory");
+                    }
+                    console.log("selectDirectoryIdList", selectDirectoryIdList);
+                    if( selectDirectoryIdList.length > 0 || selectFileIdList.length > 0 ) {
+                        document.querySelector(".file-delete-btn").disabled = false;
+                    } else {
+                        document.querySelector(".file-delete-btn").disabled = true;
+                    }
+                }
+            }
+
+        }
+
+        function cancelAllSelectList() {
+            selectFileIdList = [];
+            selectDirectoryIdList = [];
+            notMoveIdList = [];
+            notRemoveIdList = [];
+            let sdList = document.querySelectorAll(".select-directory");
+            for ( let sd of sdList ) {
+                sd.classList.remove("select-directory");
+            }
+            let fiList = document.querySelectorAll(".select-File");
+            for ( let fi of fiList ) {
+                fi.classList.remove("select-File");
+            }
+            document.querySelector(".file-delete-btn").disabled = true;
+        }
+
+        function listHideAndShow( listCol ) {
+            let listColSel = document.querySelector("." + listCol);
+
+
+            if ( listColSel.classList.contains("display-none") ) {
+                listColSel.classList.remove("display-none");
+                $("." + listCol + "-text").text(
+                    $("." + listCol + "-text").text()
+                        .substring( 0, $("." + listCol + "-text").text().indexOf( '(숨겨짐)' ))
+                );
+            } else {
+                listColSel.classList.add("display-none");
+                $("." + listCol + "-text").text( $("." + listCol + "-text").text() + '(숨겨짐)' );
+            }
+        }
+
+        /*]]>*/
+    </script>
+</th:block>
+</html>

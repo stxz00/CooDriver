@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.TaskMapper">
+    <select id="getTaskList" parameterType="String" resultType="hashmap">
+        select TASK_KEY, MEMBER_KEY, TASK_NM, TASK_INTRO, USE_YN, WRITE_POSITION, VIEW_POSITION, COMMENT_POSITION, FILE_POSITION, PRIVATE_YN,
+               CRE_USER_ID, UPD_USER_ID, date_format(CRE_DT, '%Y-%m-%d %T') as CRE_DT, date_format(UPD_DT, '%Y-%m-%d %T') as UPD_DT
+        from tb_task where MEMBER_KEY = #{key};
+    </select>
+    <select id="getTaskCnt" parameterType="String" resultType="_int">
+        select count(*) from tb_task tt where tt.MEMBER_KEY = #{memberKey};
+    </select>
+    <select id="getUserTaskList" parameterType="hashmap" resultType="hashmap">
+        select tt.TASK_KEY, tt.MEMBER_KEY, tt.TASK_NM, tt.TASK_INTRO, tt.USE_YN, tt.WRITE_POSITION, tt.VIEW_POSITION, tt.COMMENT_POSITION, tt.FILE_POSITION, tt.PRIVATE_YN,
+               tt.CRE_USER_ID, tt.UPD_USER_ID, date_format(tt.CRE_DT, '%Y-%m-%d %T') as CRE_DT, date_format(tt.UPD_DT, '%Y-%m-%d %T') as UPD_DT
+        from tb_task tt join tb_task_user_list ttul on tt.TASK_KEY = ttul.TASK_KEY where tt.MEMBER_KEY = #{key} and ttul.USER_ID = #{userId};
+    </select>
+    <insert id="insertTask" parameterType="TaskParam">
+        insert into tb_task (TASK_KEY, MEMBER_KEY, TASK_NM, TASK_INTRO, UPD_USER_ID, CRE_USER_ID)
+            VALUES (
+            #{taskKey}, #{memberKey}, #{taskNm}, #{taskIntro}, #{updUserId}, #{creUserId}
+            );
+    </insert>
+    <insert id="insertTaskUserList" parameterType="TaskUserListParam">
+        insert into tb_task_user_list (TASK_KEY, USER_ID, POSITION)
+            VALUES (
+                #{taskKey}, #{userId}, #{position}
+            );
+    </insert>
+    <select id="nextval" resultType="_int">
+        select nextval(sq_task);
+    </select>
+    <select id="selectTask" parameterType="String" resultType="TaskParam">
+        select * from tb_task where TASK_KEY = #{key};
+    </select>
+    <select id="selectBoardCnt" parameterType="String" resultType="_int">
+        select count(*) from tb_board where TASK_KEY = #{key}
+    </select>
+    <select id="selectCommentCnt" parameterType="String" resultType="_int">
+        select count(*) from tb_cmt tc join tb_board tb on tb.BOARD_KEY = tc.CMT_BOARD where tb.TASK_KEY = #{key}
+    </select>
+    <select id="getTaskAdminData" parameterType="String" resultType="hashmap">
+        select tui.USER_NM, ttul.USER_ID, tui.USER_EMAIL, ttul.`POSITION`
+        from tb_task_user_list ttul
+            join tb_user_info tui on ttul.USER_ID = tui.USER_ID
+        where ttul.TASK_KEY=#{taskKey} order by ttul.POSITION DESC;
+    </select>
+    <select id="selectAdminCnt" parameterType="String" resultType="_int">
+        select count(*) from tb_task_user_list where TASK_KEY = #{taskKey} and POSITION = 1;
+    </select>
+    <select id="selectUserCnt" parameterType="String" resultType="_int">
+        select count(*) from tb_task_user_list where TASK_KEY = #{taskKey};
+    </select>
+    <select id="selectTaskUserList" parameterType="String" resultType="hashmap">
+        select ttul.USER_ID, ttul.POSITION, tui.USER_NM from tb_task_user_list ttul join tb_user_info tui on ttul.USER_ID = tui.USER_ID where ttul.TASK_KEY = #{taskKey} order by ttul.POSITION DESC;
+    </select>
+    <select id="selectTaskInviteList" parameterType="hashmap" resultType="hashmap">
+        SELECT tmul.USER_ID, tui.USER_NM
+        FROM (SELECT * FROM tb_member_user_list WHERE MEMBER_KEY = #{memberKey}) tmul
+                 LEFT OUTER JOIN (SELECT * FROM tb_task_user_list WHERE TASK_KEY = #{taskKey}) ttul
+                                 ON tmul.USER_ID =ttul.USER_ID
+                 LEFT JOIN tb_user_info tui on tui.USER_ID = tmul.USER_ID
+        WHERE ttul.USER_ID IS NULL;
+    </select>
+    <update id="updateTaskNm" parameterType="hashmap">
+        update tb_task set TASK_NM = #{taskNm} where TASK_KEY = #{taskKey};
+    </update>
+    <update id="updateTaskUserPosition" parameterType="hashmap">
+        update tb_task_user_list set POSITION = case when POSITION = 0 then 1 else 0 end where TASK_KEY=#{taskKey} and USER_ID=#{user};
+    </update>
+    <select id="selectTaskPos" parameterType="hashmap" resultType="_int">
+        select ttul.POSITION from tb_task_user_list ttul where ttul.TASK_KEY=#{taskKey} and ttul.USER_ID=#{userId};
+    </select>
+    <delete id="deleteTask" parameterType="String">
+        DELETE ttul, tt FROM tb_task_user_list ttul LEFT JOIN tb_task tt on ttul.TASK_KEY = tt.TASK_KEY where tt.TASK_KEY = #{taskKey};
+    </delete>
+</mapper>

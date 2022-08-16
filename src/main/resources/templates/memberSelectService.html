@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<th:block layout:fragment="content">
+    <div class="mr-0 ml-0">
+        <div class="col-12">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-11 mt-2 mb-2 jumbotron-content">
+                        <h1 class="display-4"></h1>
+                        <p class="lead">멤버 생성</p>
+                        <hr class="my-4">
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h1 class="mb-4">서비스 선택</h1>
+                                    <div class="row">
+                                        <div class="col-6 text-center">
+                                            <div style="height: 500px; border: 2px solid rebeccapurple;">
+                                                <h2 class="mb-4" style="margin-top: 20px;">베이직</h2>
+                                                <div class="px-4 mb-4" style="height: 100px;">
+                                                    업무 효율 향상과 필수 기능을 사용할 수 있는 합리적인 서비스
+                                                </div>
+                                                <div>
+                                                    <button type="button"
+                                                            class="btn rounded-pill"
+                                                            style="width: 200px; background-color: rebeccapurple;"
+                                                            th:onclick="move('/member/join/basic')">
+                                                        <span style="font-weight: 600; color: white; ">선택하기</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <div style="height: 500px; border: 2px solid crimson;">
+                                                <h2 class="mb-4" style="margin-top: 20px;">프리미엄</h2>
+                                                <div class="px-4 mb-4" style="height: 100px;">
+                                                    데이터 통계 및 연동을 포함한 유용한 서비스를 <br>모두 사용할 수 있는 전문 서비스
+                                                </div>
+                                                <div>
+                                                    <button type="button"
+                                                            class="btn rounded-pill "
+                                                            style="width: 200px; background-color: crimson;"
+                                                            th:onclick="move('/member/join/premium')">
+                                                        <span style="font-weight: 600; color: white;">선택하기</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <hr class="my-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+
+    </script>
+</th:block>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<th:block layout:fragment="content">
+    <div class="mr-0 ml-0">
+        <div class="col-12">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-11 mt-2 mb-2 jumbotron-content">
+                        <h1 class="display-4"></h1>
+                        <p class="lead">플래티넘 멤버 생성</p>
+                        <hr class="my-4">
+                        <form id="memberForm">
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label for="memberNm" class="form-label">*멤버명</label>
+                                    <input class="form-control" type="text" id="memberNm" placeholder="멤버명 입력" />
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label for="memberIntro" class="form-label">멤버 소개</label>
+                                    <input class="form-control" type="text" id="memberIntro" placeholder="멤버 소개 입력" />
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label for="contact" class="form-label">멤버 연락처</label>
+                                    <input class="form-control" type="text" id="contact" placeholder="멤버 연락처 입력" />
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label for="memberAddress" class="form-label">멤버 페이지 주소</label>
+                                    <input class="form-control" type="text" id="memberAddress" placeholder="멤버 페이지 주소 입력" />
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label class="form-label">프로필은 나중에</label>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <button type="button"
+                                            class="btn rounded-pill"
+                                            style="width: 200px; background-color: crimson;"
+                                            th:onclick="joinPremiumJoin()">
+                                        <span style="font-weight: 600; color: white; ">가입하기</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <hr class="my-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        function joinPremiumJoin() {
+            let memberParam = {
+                memberNm : $("#memberNm").val(),
+                membership : "PREMIUM",
+                memberIntro : $("#memberIntro").val(),
+                contact : $("#contact").val(),
+                memberAddress : $("#memberAddress").val()
+            }
+            //프로필 나중에 넣어야함
+            $.ajax({
+                url:"/member/insert",
+                type: "POST",
+                data: JSON.stringify(memberParam),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8"
+            }).done((data) => {
+
+                if ( data === 1 ) {
+                    move("/member/redirectMember");
+                } else {
+                    $("#cancleTitle").text("프리미엄 멤버 가입 실패");
+                    $("#cancleText").text("프리미엄 멤버에 가입하는데 실패하였습니다. 입력한 내용을 확인해주세요.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                }
+            }).error(() => {
+                $("#cancleTitle").text("프리미엄 멤버 가입 실패");
+                $("#cancleText").text("프리미엄 멤버를 가입하는데 실패하였습니다. 입력한 내용을 확인해주세요.");
+                $("#cancleBtn").text("확인");
+                $("#cancleModal").modal("toggle");
+            });
+        }
+    </script>
+</th:block>
+</html>

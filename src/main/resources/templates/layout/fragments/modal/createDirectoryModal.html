@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="createDirectoryModalFragment">
+    <div class="modal fade" tabindex="-1" id="createDirectoryModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content ">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <p>폴더 생성</p>
+                            <form id="createDirectoryModalForm">
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <input class="form-control" type="text" id="createDirectoryNm" placeholder="폴더명 입력" th:onkeyup="createDirectoryByEnter()" />
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-primary" id="createDirectoryConfirm" th:onclick="createDirectory()">추가</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="createDirectoryCancleBtn">취소</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

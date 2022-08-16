@@ -1,0 +1,193 @@
+body {
+  height: 100%;
+}
+
+#page-top > .container {
+  margin-bottom: 72px;
+}
+
+.jumbotron {
+  border: 1px solid lightgray;
+}
+
+.jumbotron > .row {
+  --bs-gutter-x: none;
+}
+
+textarea {
+  resize: none;
+}
+
+.btn-custom {
+  width: 80px;
+}
+
+.scroll-body {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.scroll-body-vertical {
+  overflow-y: auto;
+  height: 100%;
+}
+
+.scroll-content {
+  display: block;
+}
+
+.pagination > .page-item > .page-link {
+  border-radius: 50% !important;
+  margin: 0 1px;
+  color: black;
+}
+
+.page-item.active > .page-link {
+  background-color: transparent;
+  border-color: black;
+}
+
+.code-tr.active {
+  background: blanchedalmond;
+}
+
+.code-dtl-tr.active {
+  background: blanchedalmond;
+}
+
+.layout2-body {
+  --bs-gutter-x: 0;
+  padding-top: 40px;
+  height: -webkit-fill-available;
+}
+
+.sidebar {
+  border-top: 2px solid dimgray;
+}
+
+.normal-sidebar {
+  width: 250px;
+  height: 100%;
+}
+
+.nav-link.active {
+  background-color: lightslategray !important;
+  color: white !important;
+}
+
+.parent-directory:hover {
+  background: #f1f3f4;
+  border-radius: 10px;
+}
+
+.dropBox.active {
+  box-sizing: content-box;
+  border: 5px solid #5b6dcd;
+}
+
+.display-none {
+  display: none !important;
+}
+
+.file-list-delete-button {
+  width: 28px;
+  height: 28px;
+}
+
+.stop-drag {
+  -webkit-user-drag: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+.delete-icon {
+  color: #555;
+  font-size: 20px;
+  margin: auto;
+  vertical-align: middle;
+}
+.file-list-delete-button:hover {
+  border: 1px solid #5b6dcd !important;
+}
+.file-list-delete-button:hover .delete-icon {
+  color: #5b6dcd;
+}
+.file-list-col {
+  padding: 10px;
+  margin-bottom: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  height: 60px;
+  cursor: pointer;
+}
+
+.file-list-col:hover {
+  border: 1px solid #5b6dcd;
+}
+
+.xi-caret-down-circle-o {
+  color: white;
+}
+
+.btn:focus {
+  box-shadow: none !important;
+}
+
+.select-File {
+  background: rgba(135, 206, 235, 0.8);
+}
+
+.select-directory {
+  background: rgba(135, 206, 235, 0.8);
+}
+
+.file-type-row {
+  padding: 10px;
+}
+
+.file-type-row:hover {
+  border: 1px solid #5b6dcd;
+  color: #5b6dcd;
+  font-weight: bold;
+  background: rgba(135, 206, 235, 0.1);
+}
+
+.file-type-selected {
+  border: 1px solid #5b6dcd;
+  color: #5b6dcd;
+  font-weight: bold;
+  background: rgba(135, 206, 235, 0.1);
+}
+
+.file-type-selected:not(:first-of-type) {
+  margin-top: 1px;
+}
+
+.btn-cmt-submit:hover {
+  color: black;
+  transform: scale(1.1);
+}
+
+#page-top {
+  min-width: 1200px;
+  overflow-x: auto;
+}
+.hr-sect {
+  display: flex;
+  flex-basis: 100%;
+  align-items: center;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 15px;
+  margin: 8px 0px;
+}
+.hr-sect::before,
+.hr-sect::after {
+  content: "";
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.35);
+  height: 1px;
+  font-size: 0px;
+  line-height: 0px;
+  margin: 0px 16px;
+}

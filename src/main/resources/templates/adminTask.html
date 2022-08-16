@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html
+        lang="ko"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout2}"
+>
+<th:block layout:fragment="content">
+  <div class="container-lg mt-5 tab-content px-3" id="content-body">
+    <table class="table table-hover custom-table mt-3" id="navuser">
+      <thead>
+      <tr>
+        <th scope="col">NAME</th>
+        <th scope="col">ADMIN</th>
+        <th scope="col">USER</th>
+        <th scope="col">CONTENT</th>
+        <th scope="col">COMMENT</th>
+        <th scope="col">UPDDT</th>
+        <th scope="col">CREDT</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="task : ${tasks}" style="height:50px" th:attr="onclick=|taskInfo('${task.TASK_KEY}', '${task.TASK_NM}')|">
+        <th scope="row" class="align-middle">[[${task.TASK_NM}]]</th>
+        <td class="align-middle">[[${task.ADMIN_CNT}]]</td>
+        <td class="align-middle">[[${task.USER_CNT}]]</td>
+        <td class="align-middle">[[${task.BOARD_CNT}]]</td>
+        <td class="align-middle">[[${task.COMMENT_CNT}]]</td>
+        <td class="align-middle">[[${task.UPD_DT}]]</td>
+        <td class="align-middle">[[${task.CRE_DT}]]</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <script th:inline="javascript">
+      let taskKey = null;
+      function taskInfo(key, name){
+        $.ajax({
+          url: '/team/' + localStorage.getItem("memberAddress") + '/admin/taUpdate',
+          type: "POST",
+          data: {
+            taskKey : key
+          }
+        }).done(function (data) {
+          taskKey = key;
+          modalUpdate_TaskAdmin(data);
+          $("#taskKeyInput").val(key);
+          $("#taskNmInput").val(name);
+          $("#taskInfoModal").modal("toggle");
+        });
+
+      }
+
+      function posUpdate(item){
+        item.innerText = item.innerText == '[선택]' ? '[해제]' : '[선택]';
+      }
+
+      function updateTaskAdmin(){
+        let taskNm = $("#taskNmInput").val();
+        let users = $("#modalUserList").find('tr');
+        let userDatas = new Array();
+        for(let i = 0; i < users.length; i++){
+          let tds = users[i].children;
+          let userId = tds[1].innerText;
+          let conditions = tds[3].children;
+          let origin_val = conditions[0].value;
+          let new_val = conditions[1].innerText == '[선택]' ? 0 : 1;
+          if(new_val != origin_val) userDatas.push(userId);
+        }
+        console.log(taskNm + " / " + taskKey + " / " + userDatas);
+        let sendData = {"taskKey" : taskKey, "taskNm" : taskNm, "users" : userDatas};
+
+        $.ajax({
+          url: '/replace/' + localStorage.getItem("memberAddress") + '/admin/task',
+          type: "POST",
+          data: sendData
+        }).done(function (data) {
+          console.log("done");
+          $("#taskInfoModal").modal("toggle");
+          $("#content-body").replaceWith(data);
+        }).fail(function(data, textStatus, errorThrown){
+          console.log(data + " / " + textStatus + " / " + errorThrown);
+        });
+      }
+
+      function removeTask(){
+        let taskKey = $("#taskKeyInput").val();
+        $.ajax({
+          type: "POST",
+          url: "/replace/" + localStorage.getItem("memberAddress") + "/admin/removeTask",
+          data: {
+            taskKey : taskKey
+          },
+          success : (data) => {
+            $("#taskInfoModal").modal("toggle");
+            $("#cancleTitle").text("삭제 성공");
+            $("#cancleText").text("성공적으로 제거 했습니다.");
+            $("#cancleBtn").text("확인");
+            $("#cancleModal").modal("toggle");
+          },
+          error: (request,status,error) => {
+            $("#taskInfoModal").modal("toggle");
+            $("#cancleTitle").text("삭제 실패");
+            $("#cancleText").text("오류가 발생했습니다.");
+            $("#cancleBtn").text("확인");
+            $("#cancleModal").modal("toggle");
+          }
+        }).done(function(data){
+          $("#content-body").replaceWith(data);
+        });
+      }
+    </script>
+  </div>
+
+</th:block>
+</html>

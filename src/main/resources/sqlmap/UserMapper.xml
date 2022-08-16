@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.UserMapper">
+    <insert id="insertUser" parameterType="UserParam">
+        INSERT INTO tb_user (
+                             USER_KEY,
+                             USER_ID,
+                             USER_PW,
+                             USER_EMAIL,
+                             USER_ROLE
+                             )
+                             VALUES (
+                             #{userKey}, #{userId}, #{userPw}, #{userEmail}, #{userRole}
+                             );
+    </insert>
+    <select id="nextval" resultType="_int">
+        SELECT NEXTVAL(sq_user);
+    </select>
+    <select id="getUserList" parameterType="PageParam" resultType="map">
+        SELECT * FROM tb_user order by USER_KEY DESC
+        LIMIT #{limit} OFFSET #{offset};
+    </select>
+    <select id="getTotalCnt" resultType="_int">
+        SELECT COUNT(*) FROM tb_user where USE_YN='Y' and USER_ROLE not like '%ROLE_ADMIN%';
+    </select>
+    <select id="selectUser" parameterType="String" resultType="UserParam">
+        SELECT * FROM tb_user where USER_ID = #{id};
+    </select>
+    <select id="selectUserPw" parameterType="hashmap" resultType="UserParam">
+        SELECT * FROM tb_user where USER_ID = #{id} and USER_PW = #{pw};
+    </select>
+    <update id="userYnSwitch" parameterType="String">
+        update tb_user set USE_YN = case when USE_YN = 'Y' then 'N' else 'Y' end where USER_ID=#{userId};
+    </update>
+</mapper>

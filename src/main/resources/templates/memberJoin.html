@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<th:block layout:fragment="content">
+    <div class="row mr-0 ml-0" id="content-body">
+        <div class="col-12 px-1 py-1 ">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-8 mt-5 mb-5 jumbotron-content">
+                        <form method="POST" id="joinForm">
+                            <h1 class="display-4">[[${member.memberNm}]] 회원가입</h1>
+                            <p class="lead">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="loginCheck" onchange="loginPageChange()">
+                                    <label class="form-check-label" for="loginCheck">기존 회원</label>
+                                </div>
+                            </p>
+                            <hr class="my-4">
+                            <!--이름-->
+                            <div class="row align-items-center mt-2 mb-2 changedTab">
+                                <div class="col-md-2 col-6">
+                                    <label for="inputName" class="col-form-label">Name</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="text" id="inputName" class="form-control" name="userNm">
+                                </div>
+                            </div>
+                            <!--나이-->
+                            <div class="row align-items-center mt-2 mb-2 changedTab">
+                                <div class="col-md-2 col-6">
+                                    <label for="inputAge" class="col-form-label">Age</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="text" id="inputAge" class="form-control" name="userAge">
+                                </div>
+                            </div>
+                            <!--성별-->
+                            <div class="row align-items-center mt-2 mb-2 changedTab">
+                                <div class="col-md-2 col-6">
+                                    <label for="inputGender" class="col-form-label">Gender</label>
+                                </div>
+                                <div class="col-auto">
+                                    <div id="inputGender">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="userGender" type="radio" id="inlineRadio1" value="M" checked/>
+                                            <label class="form-check-label" for="inlineRadio1">Male</label>
+                                        </div>
+
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="userGender" type="radio" id="inlineRadio2" value="F" />
+                                            <label class="form-check-label" for="inlineRadio2">Female</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--아이디-->
+                            <div class="row align-items-center mt-2 mb-2">
+                                <div class="col-md-2 col-6">
+                                    <label for="inputId" class="col-form-label">Id</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="text" id="inputId" class="form-control" name="userId" aria-describedby="idLabel">
+                                </div>
+                                <div class="col-auto">
+                                <span id="idLabel" class="form-text">
+                                  중복체크
+                                </span>
+                                </div>
+                            </div>
+                            <!--비밀번호-->
+                            <div class="row align-items-center mt-2 mb-2">
+                                <div class="col-md-2 col-6">
+                                    <label for="inputPassword" class="col-form-label">Password</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="password" id="inputPassword" class="form-control" name="userPw" aria-describedby="passwordLabel">
+                                </div>
+                                <div class="col-auto">
+                                <span id="passwordLabel" class="form-text">
+                                  8~20글자
+                                </span>
+                                </div>
+                            </div>
+                            <!--이메일-->
+                            <div class="row align-items-center mt-2 mb-2 changedTab">
+                                <div class="col-md-2 col-6">
+                                    <label for="inputEmail" class="col-form-label">Email</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="text" id="inputEmail" class="form-control" name="userEmail" aria-describedby="emailLabel">
+                                </div>
+                                <div class="col-auto">
+                                <span id="emailLabel" class="form-text">
+                                  주소 select
+                                </span>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <a onclick="submit_join_addr()" class="btn btn-outline-secondary">Submit</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            $(document).ready(function() {
+                cookieRemove(1);
+            });
+            function submit_join_addr(){
+                let links = document.location.pathname.split("/");
+                let link = "/" + links[1] + "/" + links[2] + "/" + "joinMulInsert";
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    data: {
+                        userId: $("#inputId").val(),
+                        userPw: $("#inputPassword").val(),
+                        userNm: $("#inputName").val(),
+                        userEmail: $("#inputEmail").val(),
+                        userAge: $("#inputAge").val(),
+                        userGender: $(':radio[name="userGender"]:checked').val()
+                    },
+                    success : (data) => {
+                        location.href="/member/redirectMember";
+                    },
+                    error: (request,status,error) => {
+
+                        $("#cancleTitle").text("로그인 실패");
+                        $("#cancleText").text("로그인에 실패하였습니다. 아이디 또는 비밀번호를 확인해주세요.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+                });
+            }
+            function loginPageChange(){
+                let divs = $('.changedTab').toggleClass('d-none');
+            }
+        </script>
+    </div>
+</th:block>
+</html>

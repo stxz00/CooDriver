@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="deleteDtlModalFragment">
+    <div class="modal fade" tabindex="-1" id="deleteDtlModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteDtlTitle">삭제 타이틀</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteDtlText">삭제 내용 텍스트</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" th:onclick="deleteDtlData()" class="btn btn-primary" id="deleteDtlConfirmBtn">확인</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="deleteDtlCancleBtn">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

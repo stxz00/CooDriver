@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.BoardMapper">
+    <insert id="insertBoard" parameterType="BoardParam">
+        INSERT INTO tb_board (
+            TASK_KEY,
+            BOARD_KEY,
+            BOARD_TITLE,
+            BOARD_CONTENT,
+            BOARD_USER,
+            GRP_ID
+            )
+            VALUES (
+                #{taskKey}, #{boardKey}, #{boardTitle}, #{boardContent}, #{boardUser}, #{grpId}
+            );
+    </insert>
+    <insert id="insertCmt" parameterType="CmtParam">
+        INSERT INTO tb_cmt (CMT_KEY, CMT_BOARD, CMT_USER, CMT_CONTENT, GRP_ID) values (#{cmtKey}, #{cmtBoard}, #{cmtUser}, #{cmtContent}, #{grpId});
+    </insert>
+    <select id="getBoardList" parameterType="PageParam" resultType="map">
+        SELECT * FROM tb_board order by BOARD_KEY DESC
+        LIMIT #{limit} OFFSET #{offset};
+    </select>
+    <select id="getTotalCnt" resultType="_int">
+        SELECT COUNT(*) FROM tb_board;
+    </select>
+    <select id="selectBoard" parameterType="String" resultType="BoardParam">
+        SELECT * FROM tb_board where BOARD_KEY = #{key};
+    </select>
+    <select id="getCmtList" parameterType="String" resultType="CmtParam">
+        SELECT * FROM tb_cmt where CMT_BOARD = #{key} order by CRE_DT DESC;
+    </select>
+    <select id="getCmt" parameterType="String" resultType="CmtParam">
+        SELECT * FROM tb_cmt where CMT_KEY = #{cmtKey}
+    </select>
+    <select id="getLikeCnt" parameterType="String" resultType="_int">
+        SELECT COUNT(*) FROM tb_cmt_favorite where FAV_CMT = #{key};
+    </select>
+    <select id="getCmtCheck" parameterType="FavParam" resultType="_int">
+        SELECT COUNT(*) FROM tb_cmt_favorite where FAV_CMT = #{favCmt} AND FAV_USER = #{favUser};
+    </select>
+    <select id="getTaskContent" parameterType="String" resultType="BoardParam">
+        select * from tb_board where TASK_KEY = #{key} order by CRE_DT DESC;
+    </select>
+    <select id="nextval" resultType="_int">
+        select nextval(sq_table);
+    </select>
+    <select id="nextvalCmt" resultType="_int">
+        select nextval(sq_cmt);
+    </select>
+    <insert id="favoriteBoardOn" parameterType="FavParam">
+        INSERT INTO tb_cmt_favorite (
+            FAV_USER,
+            FAV_CMT
+        )
+        VALUES (
+            #{favUser}, #{favCmt}
+        );
+    </insert>
+    <delete id="favoriteBoardOff" parameterType="FavParam">
+        delete from tb_cmt_favorite where FAV_USER = #{favUser} AND FAV_CMT = #{favCmt};
+    </delete>
+    <delete id="deleteTaskCmt" parameterType="String">
+        DELETE tc FROM tb_cmt tc LEFT JOIN tb_board tb on tb.BOARD_KEY = tc.CMT_BOARD where tb.TASK_KEY = #{taskKey};
+    </delete>
+    <delete id="deleteTaskBoard" parameterType="String">
+        DELETE tb FROM tb_board tb where tb.TASK_KEY = #{taskKey};
+    </delete>
+    <delete id="deleteBoard" parameterType="String">
+        delete from tb_board where BOARD_KEY = #{boardKey};
+    </delete>
+    <delete id="deleteCmt" parameterType="String">
+        delete from tb_cmt where CMT_KEY = #{cmtKey};
+    </delete>
+    <update id="updateBoard" parameterType="BoardParam">
+        UPDATE tb_board SET
+            BOARD_TITLE = #{boardTitle},
+            BOARD_CONTENT = #{boardContent},
+            GRP_ID = #{grpId}
+        where BOARD_KEY = #{boardKey}
+    </update>
+    <update id="updateCmt" parameterType="CmtParam">
+        UPDATE tb_cmt SET
+                            CMT_CONTENT = #{cmtContent},
+                            GRP_ID = #{grpId}
+        where CMT_KEY = #{cmtKey}
+    </update>
+</mapper>

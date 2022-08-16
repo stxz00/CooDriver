@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="modalScriptFragment">
+    <script th:inline="javascript">
+        let filesLength = 0;
+        autosize($('textarea'));
+        let link = "";
+        function move() {
+            location.href=link;
+        }
+
+        async function deleteData() {
+            let item = sessionStorage.getItem("delete");
+
+            await $.ajax({
+                url: "/cmCode/delete",
+                data: item,
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+            })
+                .done((data) => {
+                    $("#deleteModal").modal("toggle");
+                    if ( data == 1 ) {
+                        let page = 1;
+                        let pagination = /*<![CDATA[*//*[[ ${pagination} ]]*//*]]*/;
+                        let url = "/cmCode/main/replace1";
+                        let type = "POST";
+                        let replace = '#cm-code-list-content';
+                        loadList(page, pagination, url, type, replace);
+
+                        url = "/cmCode/main/replace2";
+                        replace = '#cm-code-dtl-list-content';
+                        loadList(page, pagination, url, type, replace);
+
+                    } else {
+                        $("#cancleTitle").text("공통코드 삭제 실패");
+                        $("#cancleText").text("공통코드를 삭제하는데 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+                })
+                .fail((a, b, c) => {
+                    console.log(a,b,c);
+                    $("#deleteModal").modal("toggle");
+                    $("#cancleTitle").text("공통코드 삭제 실패");
+                    $("#cancleText").text("공통코드를 삭제하는데 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                });
+        }
+
+        async function deleteDtlData() {
+            let item = sessionStorage.getItem("deleteDtl");
+
+            await $.ajax({
+                url: "/cmCodeDtl/delete",
+                data: item,
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+            })
+                .done((data) => {
+                    $("#deleteDtlModal").modal("toggle");
+                    if ( data == 1 ) {
+                        let page = 1;
+                        if (sessionStorage.getItem("dtlPage") !== null && sessionStorage.getItem("dtlPage") !== "") {
+                            page = sessionStorage.getItem("dtlPage");
+                        }
+                        let pagination2 = /*<![CDATA[*//*[[ ${pagination2} ]]*//*]]*/;
+                        let url = "/cmCode/main/loadCmCodeDtlList";
+                        let type = "POST";
+                        let replace = '#cm-code-dtl-list-content';
+                        loadList(page, pagination2, url, type, replace);
+
+                    } else {
+                        $("#cancleTitle").text("공통상세코드 삭제 실패");
+                        $("#cancleText").text("공통상세코드를 삭제하는데 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+                })
+                .fail((a, b, c) => {
+                    console.log(a,b,c);
+                    $("#deleteModal").modal("toggle");
+                    $("#cancleTitle").text("공통상세코드 삭제 실패");
+                    $("#cancleText").text("공통상세코드를 삭제하는데 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                });
+        }
+
+        async function addCodeDtl() {
+            let commonCodeDtlParam = {
+                cmCode: cmCode,
+                cmDtlCode: $("#cmDtlCode").val(),
+                cmDtlCodeNm: $("#cmDtlCodeNm").val(),
+                cmDtlCodeExp: $("#cmDtlCodeExp").val()
+            }
+            if ( commonCodeDtlParam.cmDtlCode.substring(0,3) !== cmCode ||
+                commonCodeDtlParam.cmDtlCode.length !== 5
+            ) {
+                $(".cmDtlCodeErr").text("*공통코드 3자리 + 숫자, 문자 등 2자리를 입력해주세요.");
+                return;
+            }
+
+            await $.ajax({
+                url: "/cmCodeDtl/add",
+                data: JSON.stringify(commonCodeDtlParam),
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+            })
+                .done((data) => {
+                    $("#addCodeDtlModal").modal("toggle");
+                    if ( data == 1 ) {
+                        let page = 1
+                        if (sessionStorage.getItem("dtlPage") !== null && sessionStorage.getItem("dtlPage") !== "") {
+                            page = sessionStorage.getItem("dtlPage");
+                        }
+                        let pagination2 = /*<![CDATA[*//*[[ ${pagination2} ]]*//*]]*/;
+                        let url = "/cmCode/main/loadCmCodeDtlList";
+                        let type = "POST";
+                        let replace = '#cm-code-dtl-list-content';
+                        loadList(page, pagination2, url, type, replace);
+                    } else {
+                        $("#cancleTitle").text("공통상세코드 추가 실패");
+                        $("#cancleText").text("공통상세코드를 추가하는데 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+                })
+                .fail((a, b, c) => {
+                    console.log(a,b,c);
+                    $("#cancleTitle").text("공통상세코드 추가 실패");
+                    $("#cancleText").text("공통상세코드를 추가하는데 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                });
+        }
+
+        async function editCodeDtl() {
+            let commonCodeDtlParam = {
+                cmCode: $("#editCmDtlCode").val().substring(0,3),
+                cmDtlCode: $("#editCmDtlCode").val(),
+                cmDtlCodeNm: $("#editCmDtlCodeNm").val(),
+                cmDtlCodeExp: $("#editCmDtlCodeExp").val()
+            }
+            if (commonCodeDtlParam.cmDtlCode.length !== 5) {
+                $(".cmDtlCodeErr").text("*공통코드 3자리 + 숫자, 문자 등 2자리를 입력해주세요.");
+                return;
+            }
+
+            await $.ajax({
+                url: "/cmCodeDtl/edit",
+                data: JSON.stringify(commonCodeDtlParam),
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+            })
+                .done((data) => {
+                    $("#editCodeDtlModal").modal("toggle");
+                    if ( data == 1 ) {
+                        let page = 1;
+                        if (sessionStorage.getItem("dtlPage") !== null && sessionStorage.getItem("dtlPage") !== "") {
+                            page = sessionStorage.getItem("dtlPage");
+                        }
+                        let pagination2 = /*<![CDATA[*//*[[ ${pagination2} ]]*//*]]*/;
+                        let url = "/cmCode/main/loadCmCodeDtlList";
+                        let type = "POST";
+                        let replace = '#cm-code-dtl-list-content';
+                        loadList(page, pagination2, url, type, replace);
+                    } else {
+                        $("#cancleTitle").text("공통상세코드 수정 실패");
+                        $("#cancleText").text("공통상세코드를 수정하는데 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+                })
+                .fail((a, b, c) => {
+                    console.log(a,b,c);
+                    $("#cancleTitle").text("공통상세코드 수정 실패");
+                    $("#cancleText").text("공통상세코드를 수정하는데 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                });
+
+        }
+
+        function createDirectoryByEnter() {
+            if (window.event.keyCode == 13) {
+                createDirectory();
+            }
+        }
+
+        async function createDirectory() {
+            let directoryNm = $("#createDirectoryNm").val();
+            if (directoryNm == null || directoryNm === "") {
+                return;
+            }
+
+            let location = window.location.href;
+            let id = location.substring(location.lastIndexOf("/") + 1, location.length);
+
+            let memberDirectoryParam = {
+                memberKey: localStorage.getItem("memberKey"),
+                directoryId: id,
+                directoryNm: directoryNm
+            }
+
+            await $.ajax({
+                url: "/directory/create",
+                data: JSON.stringify(memberDirectoryParam),
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+            })
+                .done((data) => {
+                    $("#createDirectoryModal").modal("toggle");
+                    if (data == 1) {
+
+                        $.ajax({
+                            url: "/replace" + "/" + localStorage.getItem("memberAddress") + "/drive/" + id,
+                            type: "GET"
+                        }).done((list) => {
+                            $("#content-body").replaceWith(list);
+                        }).fail(() => {
+                            $("#cancleTitle").text("폴더 추가 실패");
+                            $("#cancleText").text("폴더를 추가하는데 실패하였습니다.");
+                            $("#cancleBtn").text("확인");
+                            $("#cancleModal").modal("toggle");
+                        })
+
+                    } else {
+                        $("#cancleTitle").text("폴더 추가 실패");
+                        $("#cancleText").text("폴더를 추가하는데 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+                })
+                .fail((a, b, c) => {
+                    console.log(a, b, c);
+                    $("#cancleTitle").text("폴더 추가 실패");
+                    $("#cancleText").text("폴더를 추가하는데 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                })
+        }
+
+        function modalOn(id){
+            $(id).modal("toggle");
+        }
+
+
+        async function boardWrite(){
+            let grpId = await checkFileAndGrpUpload();
+            console.log("grpId : " + grpId);
+            let url = "taskDetail";
+            let r_url = "board/insert";
+            let data = {
+                boardTitle : $("#boardTitle").val(),
+                boardContent : $("#boardContent").val(),
+                taskKey : $("#taskKey").val(),
+                grpId : grpId,
+            }
+            data["url"] = url;
+            await $.ajax({
+                url: '/' + r_url,
+                type: "POST",
+                data: data
+            }).done(function (page) {
+                $("#content-body").replaceWith(page);
+                $("#boardTitle").val("");
+                $("#boardContent").val("");
+                $("#insertBoardModal").modal("toggle");
+
+                sizeOfFilesToUpload = 0;
+                filesToUpload = [];
+                if(cmtFileListRow !== "" && cmtFileListRow !== null && cmtFileListRow !== undefined){
+                    try {
+                        cmtFileListRow.innerHTML = "";
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+                grpFileIdList = [];
+            });
+        }
+
+        const $modalDrop = document.querySelector(".modal-drop-box");
+        const fileListRow = document.querySelector(".modal-file-list-row");
+        const modifyListRow = document.querySelector(".modify-modal-file-list-row");
+        const modifyCmtListRow = document.querySelector(".modify-Cmt-file-list-row");
+        let modalUploadFileList = document.querySelector(".modal-upload-file-list");
+        function modalDragover(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(".modal-file-ondragenter").css("display", "block");
+        }
+
+        function modalDragenter (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function modalDragleave (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(".modal-file-ondragenter").css("display", "none");
+        }
+
+        function modalDrop (e) {
+            e.preventDefault();
+
+            // 드롭된 파일 리스트 가져오기
+            let files = [...e.dataTransfer?.files];
+
+            filesLength = files.length;
+            count = 0;
+
+            console.log(files);
+
+            let droppedFilesSize = 0;
+
+            for ( let file of files ) {
+                droppedFilesSize += file.size;
+                if(file.size == 0 && (file.type == "" || file.type == null)) {
+                    $("#cancleTitle").text("폴더 업로드");
+                    $("#cancleText").text("폴더는 압축하여 첨부하시기 바랍니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                    $modalDrop.classList.remove("active");
+                    return;
+                }
+            }
+
+            // console.log("uploadFilesSize", uploadFilesSize);
+
+            let promise = new Promise( (resolve, reject) => {
+                resolve(driveSize())
+            })
+
+            promise.then( (size) => {
+                let expectedSize = sizeOfFilesToUpload + droppedFilesSize + size.usedSize;
+                let totalUsualSize = size.totalUsualSize*1024*1024*1024;
+
+                if(expectedSize <= totalUsualSize) {
+                    sizeOfFilesToUpload = sizeOfFilesToUpload + droppedFilesSize;
+
+                    for ( let file of files ) {
+                        filesToUpload.push(file);
+
+                        let fileSize = file.size;
+                        if( fileSize < 1024 ) {
+                            fileSize = fileSize + " Byte";
+                        } else if( fileSize/1024 < 1024 ) {
+                            fileSize = (fileSize/1024).toFixed(2) + " KB";
+                        } else if( fileSize/1024/1024 < 1024 ) {
+                            fileSize = (fileSize/1024/1024).toFixed(2) + " MB";
+                        } else {
+                            fileSize = (fileSize/1024/1024/1024).toFixed(2) + " GB";
+                        }
+
+                        fileListRow.innerHTML +=
+                            `<div class="col-12 stop-drag file-list-col my-1" id="${file.lastModified}">
+                                <div class="stop-drag" style="display: inline-block; width: 30px; height: 30px;">
+                                    <img class="stop-drag" src="http://localhost:8072/img/file_icon.png" style="width: 100%; margin:auto;"/>
+                                </div>
+                                <div
+                                    style="display: inline-block; vertical-align: middle; font-size: 13px; margin-left: 10px; width:calc(100% - 50px)">
+                                    <div style="display: inline-block;">
+                                        <div>${file.name}</div>
+                                        <div style="color: #999">${fileSize}</div>
+                                    </div>
+                                    <button type="button" class="file-list-delete-button stop-drag" draggable="false" style="display: inline-block; padding: 0px;
+                                        float: right; background-color: transparent; border-radius: 5px; border: 1px solid #ddd;"
+                                        onclick="removeFileList(event)"
+                                    >
+                                        <i class="xi-trash-o delete-icon" data-index="${file.lastModified}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            `
+                    }
+                    console.log(filesToUpload);
+                    modalUploadFileList.classList.remove("display-none");
+
+                } else {
+                    $("#cancleTitle").text("드라이브 용량 초과");
+                    $("#cancleText").text("사용하실 수 있는 개인 드라이브 저장 용량을 초과하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                }
+            })
+            $(".modal-file-ondragenter").css("display", "none");
+        }
+
+        function modalUpdate_TaskAdmin(data) {
+            let text = "";
+            for(let i = 0; i < data.length; i++){
+                let item = data[i];
+                let posString = item.POSITION == 0 ? '[선택]' : '[해제]';
+
+                text +=
+                    `<tr>
+                        <td>${item.USER_NM}</td>
+                        <td>${item.USER_ID}</td>
+                        <td>${item.USER_EMAIL}</td>
+                        <td><input type="hidden" value="${item.POSITION}"><a class="text-body" onclick="posUpdate(this)">${posString}</a></td>
+                    </tr>`
+            }
+            $("#modalUserList").html(text);
+        }
+
+        var myModalEl = document.getElementById('insertBoardModal');
+        myModalEl.addEventListener('hidden.bs.modal', function (event) {
+            $('.modal-upload-file-list, .modal-file-list-row').html("");
+            filesToUpload = [];
+        })
+
+        //기존에 이미 업로드 되어있는 파일리스트를 지울때 사용
+        function removeModifyFileList( e ) {
+            const removeTargetId = e.target.dataset.index;
+            const removeTarget = document.getElementById(removeTargetId);
+
+            let setFiles = [];
+
+            for (let file of modifyData.attchFiles) {
+                console.log("----------")
+                console.log(removeTarget);
+                console.log("---------------");
+
+                if( removeTarget !== null ) {
+                    if( Number( file.fileId ) !== Number(removeTargetId.replace( 'mod-', '' ))) {
+                        setFiles.push(file);
+                    }
+                }
+            }
+            modifyData.attchFiles = setFiles;
+            selectFileIdList.push( removeTargetId.replace( 'mod-', '' ) )
+
+            removeTarget.remove();
+            console.log(modifyData.attchFiles);
+            console.log(selectFileIdList);
+        }
+
+        function modalDrop2 (e) {
+            e.preventDefault();
+
+            // 드롭된 파일 리스트 가져오기
+            let files = [...e.dataTransfer?.files];
+
+            filesLength = files.length;
+            count = 0;
+
+            console.log(files);
+
+            let droppedFilesSize = 0;
+
+            for ( let file of files ) {
+                droppedFilesSize += file.size;
+                if(file.size == 0 && (file.type == "" || file.type == null)) {
+                    $("#cancleTitle").text("폴더 업로드");
+                    $("#cancleText").text("폴더는 압축하여 첨부하시기 바랍니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                    $modalDrop.classList.remove("active");
+                    return;
+                }
+            }
+
+            // console.log("uploadFilesSize", uploadFilesSize);
+
+            let promise = new Promise( (resolve, reject) => {
+                resolve(driveSize())
+            })
+
+            promise.then( (size) => {
+                let expectedSize = sizeOfFilesToUpload + droppedFilesSize + size.usedSize;
+                let totalUsualSize = size.totalUsualSize*1024*1024*1024;
+
+                if(expectedSize <= totalUsualSize) {
+                    sizeOfFilesToUpload = sizeOfFilesToUpload + droppedFilesSize;
+
+                    for ( let file of files ) {
+                        filesToUpload.push(file);
+
+                        let fileSize = file.size;
+                        if( fileSize < 1024 ) {
+                            fileSize = fileSize + " Byte";
+                        } else if( fileSize/1024 < 1024 ) {
+                            fileSize = (fileSize/1024).toFixed(2) + " KB";
+                        } else if( fileSize/1024/1024 < 1024 ) {
+                            fileSize = (fileSize/1024/1024).toFixed(2) + " MB";
+                        } else {
+                            fileSize = (fileSize/1024/1024/1024).toFixed(2) + " GB";
+                        }
+
+                        modifyListRow.innerHTML +=
+                            `<div class="col-12 stop-drag file-list-col my-1" id="${file.lastModified}">
+                                <div class="stop-drag" style="display: inline-block; width: 30px; height: 30px;">
+                                    <img class="stop-drag" src="http://localhost:8072/img/file_icon.png" style="width: 100%; margin:auto;"/>
+                                </div>
+                                <div
+                                    style="display: inline-block; vertical-align: middle; font-size: 13px; margin-left: 10px; width:calc(100% - 50px)">
+                                    <div style="display: inline-block;">
+                                        <div>${file.name}</div>
+                                        <div style="color: #999">${fileSize}</div>
+                                    </div>
+                                    <button type="button" class="file-list-delete-button stop-drag" draggable="false" style="display: inline-block; padding: 0px;
+                                        float: right; background-color: transparent; border-radius: 5px; border: 1px solid #ddd;"
+                                        onclick="removeFileList(event)"
+                                    >
+                                        <i class="xi-trash-o delete-icon" data-index="${file.lastModified}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            `
+                    }
+                    console.log(filesToUpload);
+                    modifyListRow.classList.remove("display-none");
+
+                } else {
+                    $("#cancleTitle").text("드라이브 용량 초과");
+                    $("#cancleText").text("사용하실 수 있는 개인 드라이브 저장 용량을 초과하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                }
+            })
+            $(".modal-file-ondragenter").css("display", "none");
+        }
+
+        function boardModify() {
+            console.log(filesToUpload);
+            uploadedFileCount = 0;
+
+            let promise1 = new Promise( ( resolve, reject) => {
+                resolve(deleteFiles());
+            })
+
+            let promise2 = new Promise( ( resolve, reject) => {
+                if( modifyGrpId !== null &&
+                    modifyGrpId !== ""
+                    && modifyGrpId !==
+                    undefined &&
+                    modifyGrpId !== " "
+                    && modifyGrpId.length === 0 ) {
+                    resolve( () => {
+                        console.log("checkFileAndGrpUpload");
+                        modifyGrpId = checkFileAndGrpUpload()
+                    } ); // 업로드 및 attchGrp, Id 까지 만든 상태
+                } else {
+                    console.log("uploadAndInsertGrp");
+                    resolve( uploadAndInsertGrp() ); // 업로드만 하고 grp엔 아직 업로드하지 않음
+                }
+            })
+
+            let promise3 = new Promise( (resolve, reject) => {
+                console.log("modifyGrpId2", modifyGrpId);
+                modifyRealBoard();
+            } )
+
+
+            promise1.then( () => {
+                promise2.then( () => {
+                    promise3.then( () => {
+                    } )
+                } )
+            } )
+        }
+
+        function cmtModify() {
+            console.log(filesToUpload);
+            uploadedFileCount = 0;
+
+            let promise1 = new Promise( ( resolve, reject) => {
+                resolve(deleteFiles());
+            })
+
+            let promise2 = new Promise( ( resolve, reject) => {
+                if( modifyGrpId !== null &&
+                    modifyGrpId !== ""
+                    && modifyGrpId !==
+                    undefined &&
+                    modifyGrpId !== " "
+                    && modifyGrpId.length === 0 ) {
+                    resolve( () => {
+                        console.log("checkFileAndGrpUpload");
+                        modifyGrpId = checkFileAndGrpUpload()
+                    } ); // 업로드 및 attchGrp, Id 까지 만든 상태
+                } else {
+                    console.log("uploadAndInsertGrp");
+                    resolve( uploadAndInsertGrp() ); // 업로드만 하고 grp엔 아직 업로드하지 않음
+                }
+            })
+
+            let promise3 = new Promise( (resolve, reject) => {
+                console.log("modifyGrpId2", modifyGrpId);
+                modifyRealCmt();
+            } )
+
+
+            promise1.then( () => {
+                promise2.then( () => {
+                    promise3.then( () => {
+                    } )
+                } )
+            } )
+        }
+
+        function uploadAndInsertGrp() {
+            console.log("진입");
+
+            let promise1 = new Promise( (resolve, reject) => {
+                resolve( upload() );
+            } )
+
+            promise1.then( () => {
+                let utilParam = {
+                    grpId: modifyGrpId,
+                    listData: grpFileIdList,
+                }
+
+                console.log("utilParam", utilParam);
+
+                $.ajax({
+                    url: "/grp/insertWithId",
+                    type: "POST",
+                    data: JSON.stringify(utilParam),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                }).done( (data) => {
+                    if(data !== null) {
+                    } else {
+                        $("#cancleTitle").text("게시물 수정 실패");
+                        $("#cancleText").text("게시물 수정에 실패하였습니다.");
+                        $("#cancleBtn").text("확인");
+                        $("#cancleModal").modal("toggle");
+                    }
+
+                }).fail( (a,b,c) => {
+                    console.log(a,b,c);
+                })
+
+            })
+        }
+
+        async function modifyRealBoard() {
+            let boardParam = {
+                boardKey : modifyData.boardKey,
+                boardTitle: $("#modifyBoardTitleText").val(),
+                boardContent: $("#modifyBoardContent").val(),
+                grpId: modifyGrpId,
+            }
+
+            console.log("modifyRealBoard boardParam ", boardParam);
+
+            $.ajax({
+                url: "/board/modify",
+                type: "POST",
+                data: JSON.stringify(boardParam),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+            }).done( (data) => {
+                if(data === 1) {
+                    loadBoard();
+                    $("#modifyBoardModal").modal("toggle");
+                    selectFileIdList = [];
+                    filesToUpload = [];
+                    filesLength = 0;
+                } else {
+                    $("#cancleTitle").text("게시물 수정 실패");
+                    $("#cancleText").text("게시물 수정에 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                }
+
+            }).fail( (a,b,c) => {
+                console.log(a,b,c);
+            })
+
+        }
+
+        function loadBoard(){
+            let link = "/replace/" + localStorage.getItem("memberAddress") + "/loadBoard";
+            $.ajax( {
+                url: link,
+                type: "POST",
+                data: {
+                    taskKey : $("#taskKey").val()
+                }
+            }).done((list)=>{
+                $("#content-board").replaceWith(list);
+            });
+        }
+
+
+        function modalDrop3 (e) {
+            e.preventDefault();
+
+            // 드롭된 파일 리스트 가져오기
+            let files = [...e.dataTransfer?.files];
+
+            filesLength = files.length;
+            count = 0;
+
+            console.log(files);
+
+            let droppedFilesSize = 0;
+
+            for ( let file of files ) {
+                droppedFilesSize += file.size;
+                if(file.size == 0 && (file.type == "" || file.type == null)) {
+                    $("#cancleTitle").text("폴더 업로드");
+                    $("#cancleText").text("폴더는 압축하여 첨부하시기 바랍니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                    $modalDrop.classList.remove("active");
+                    return;
+                }
+            }
+
+            // console.log("uploadFilesSize", uploadFilesSize);
+
+            let promise = new Promise( (resolve, reject) => {
+                resolve(driveSize())
+            })
+
+            promise.then( (size) => {
+                let expectedSize = sizeOfFilesToUpload + droppedFilesSize + size.usedSize;
+                let totalUsualSize = size.totalUsualSize*1024*1024*1024;
+
+                if(expectedSize <= totalUsualSize) {
+                    sizeOfFilesToUpload = sizeOfFilesToUpload + droppedFilesSize;
+
+                    for ( let file of files ) {
+                        filesToUpload.push(file);
+
+                        let fileSize = file.size;
+                        if( fileSize < 1024 ) {
+                            fileSize = fileSize + " Byte";
+                        } else if( fileSize/1024 < 1024 ) {
+                            fileSize = (fileSize/1024).toFixed(2) + " KB";
+                        } else if( fileSize/1024/1024 < 1024 ) {
+                            fileSize = (fileSize/1024/1024).toFixed(2) + " MB";
+                        } else {
+                            fileSize = (fileSize/1024/1024/1024).toFixed(2) + " GB";
+                        }
+
+                        modifyCmtListRow.innerHTML +=
+                            `<div class="col-12 stop-drag file-list-col my-1" id="${file.lastModified}">
+                                <div class="stop-drag" style="display: inline-block; width: 30px; height: 30px;">
+                                    <img class="stop-drag" src="http://localhost:8072/img/file_icon.png" style="width: 100%; margin:auto;"/>
+                                </div>
+                                <div
+                                    style="display: inline-block; vertical-align: middle; font-size: 13px; margin-left: 10px; width:calc(100% - 50px)">
+                                    <div style="display: inline-block;">
+                                        <div>${file.name}</div>
+                                        <div style="color: #999">${fileSize}</div>
+                                    </div>
+                                    <button type="button" class="file-list-delete-button stop-drag" draggable="false" style="display: inline-block; padding: 0px;
+                                        float: right; background-color: transparent; border-radius: 5px; border: 1px solid #ddd;"
+                                        onclick="removeFileList(event)"
+                                    >
+                                        <i class="xi-trash-o delete-icon" data-index="${file.lastModified}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            `
+                    }
+                    console.log(filesToUpload);
+                    modifyCmtListRow.classList.remove("display-none");
+
+                } else {
+                    $("#cancleTitle").text("드라이브 용량 초과");
+                    $("#cancleText").text("사용하실 수 있는 개인 드라이브 저장 용량을 초과하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                }
+            })
+            $(".modal-file-ondragenter").css("display", "none");
+        }
+
+        async function modifyRealCmt() {
+            let cmtParam = {
+                cmtKey : modifyData.cmtKey,
+                cmtContent: $("#modifyCmtContent").val(),
+                grpId: modifyGrpId,
+            }
+
+            console.log("modifyRealCmt cmtParam ", cmtParam);
+
+            $.ajax({
+                url: "/board/cmt/modify",
+                type: "POST",
+                data: JSON.stringify(cmtParam),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+            }).done( (data) => {
+                if(data === 1) {
+                    loadBoard();
+                    $("#modifyCmtModal").modal("toggle");
+                    selectFileIdList = [];
+                    filesToUpload = [];
+                    filesLength = 0;
+                } else {
+                    $("#cancleTitle").text("게시물 수정 실패");
+                    $("#cancleText").text("게시물 수정에 실패하였습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                }
+
+            }).fail( (a,b,c) => {
+                console.log(a,b,c);
+            })
+
+        }
+
+    </script>
+</th:block>
+
+</html>

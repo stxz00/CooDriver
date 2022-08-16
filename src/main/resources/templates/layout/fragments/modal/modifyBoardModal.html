@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="modifyBoardModalFragment">
+    <div class="modal fade" tabindex="-1" id="modifyBoardModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-drop-box" ondragover="modalDragover(event)" ondragenter="modalDragenter(event)">
+                <div class="modal-file-ondragenter"
+                     ondragleave="modalDragleave(event)"
+                     ondrop="modalDrop2(event)"
+                     style="
+                         display: none; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;
+                         background: rgba(255,255,255, 0.8); z-index: 10; font-size: 18px; color: #555; text-align: center; caret-color: transparent;
+                         --bs-gutter-x: 0rem;
+                     "
+                >
+                    <div class="file-ondragenter-content text-center"
+                         style="
+                            position : absolute;
+                                        left : 50%;
+                                        top : 50%;
+                                        transform : translate(-50%, -50%);
+                                        z-index: 9;
+                         ">
+                        <div class="text-center">
+                            <img style="width: 150px; height: 150px; margin: auto; z-index: 9;" th:src="@{/img/dropbox.png}"></img>
+                            <div style="z-index: 9;">첨부할 파일, 이미지 등을 드래그하여 놓아주세요</div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modifyBoardTitle">게시물 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group-lg">
+                        <input class="form-control" type="text" id="modifyBoardTitleText" placeholder="제목을 입력하세요">
+                    </div>
+                    <hr>
+                    <textarea class="form-control" style="width:100%" rows="5" id="modifyBoardContent" placeholder="내용을 입력하세요"></textarea>
+                    <div class="modal-upload-file-list modify-modal-file-list-row">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" th:onclick="boardModify()" class="btn btn-outline-secondary" id="modifyBoardConfirmBtn">수정하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html
+  lang="ko"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/layout}"
+>
+  <th:block layout:fragment="content">
+    <div class="row mr-0 ml-0">
+      <div class="col-12 px-1 py-1">
+        <div class="jumbotron">
+          <div class="row justify-content-center align-middle">
+            <div class="col-8 mt-5 mb-5 jumbotron-content">
+              <h1 class="display-4">안녕안녕</h1>
+              <p class="lead">[[${nm}]] 로그인 페이지에요</p>
+              <hr class="my-4">
+              <form th:object="${userParam}" method="POST">
+                <!--아이디-->
+                <div class="row">
+                  <div class="col-lg-6 col-12">
+                    <div class="row align-items-center mt-2 mb-2">
+                      <div class="col-lg-2 col-6">
+                        <label for="inputId" class="col-form-label">Id</label>
+                      </div>
+                      <div class="col-lg-10 col-6">
+                        <input type="text" id="inputId" class="form-control" th:field="*{userId}" aria-describedby="idLabel">
+                      </div>
+                    </div>
+                    <!--비밀번호-->
+                    <div class="row align-items-center mt-2 mb-2">
+                      <div class="col-lg-2 col-6">
+                        <label for="inputPassword" class="col-form-label">Pw</label>
+                      </div>
+                      <div class="col-lg-10 col-6">
+                        <input type="password" id="inputPassword" class="form-control" th:field="*{userPw}" aria-describedby="passwordLabel">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-12">
+                    <div class="row align-items-center mt-2 mb-2 justify-content-between" >
+                      <div class="col-lg-12 col-auto align-middle mb-2" style="height:38px; padding-top:6px;">
+                        <a>아이디찾기</a>
+                      </div>
+                      <div class="col-lg-12 col-auto align-middle mb-2" style="height:38px; padding-top: 6px">
+                        <a>비밀번호찾기</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr class="my-4">
+                <button type="button" class="btn btn-outline-secondary btn-custom mx-1" th:onclick="login()">Login</button>
+                <button type="button" class="btn btn-outline-secondary btn-custom mx-1" th:onclick="join()">Join</button>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+        function login() {
+          let link = document.location.pathname.split("/")[2];
+          $.ajax({
+            type: "POST",
+            url: "/authenticate",
+            data: {
+              userId: $("#inputId").val(),
+              userPw: $("#inputPassword").val(),
+              addr: link
+            },
+            success : (data) => {
+              localStorage.setItem("userId", $("#inputId").val());
+              location.href="/member/redirectMember";
+            },
+            error: (request,status,error) => {
+              // alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+              let errStr = request.getResponseHeader('errStr');
+
+              $("#cancleTitle").text("로그인 실패");
+              if(errStr == "ErrorNF"){
+                $("#cancleText").text("로그인에 실패하였습니다. 아이디 또는 비밀번호를 확인해주세요.");
+              }else if(errStr == "ErrorInv"){
+                $("#cancleText").text("초대 승인 대기 중인 계정입니다.");
+              }else if(errStr == "ErrorUse"){
+                $("#cancleText").text("비활성화된 계정입니다.");
+              }
+              $("#cancleBtn").text("확인");
+              $("#cancleModal").modal("toggle");
+            }
+          });
+        }
+
+        function join(){
+          let links = document.location.pathname.split("/");
+          let link = "/" + links[1] + "/" + links[2] + "/" + "memberJoin";
+          location.href= link;
+        }
+      /*]]>*/
+    </script>
+  </th:block>
+</html>

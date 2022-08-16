@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <th:block th:fragment="scriptFragment">
+    <script th:inline="javascript">
+
+      //업로드 예정인 파일들의 사이즈. 업로드가 끝나면 0으로 초기화 해줘야 한다.
+      let sizeOfFilesToUpload = 0;
+      let filesToUpload = [];
+      let uploadedFileCount = 0;
+      let grpFileIdList = [];
+      let selectFileIdList = [];
+      let deleteFileCount = 0;
+
+      function pageLoadWithData(url, r_url, data) {
+        data["url"] = url;
+        $.ajax({
+          url: '/' + r_url,
+          type: "POST",
+          data: data
+        }).done(function (page) {
+          $("#content-body").replaceWith(page);
+        });
+      }
+      function move(link) {
+          location.href=link;
+      }
+
+      function ajaxSender(url, data, type, method) {
+        $.ajax({
+          url: url,
+          type: type,
+          data: data,
+        }).done(function (d) {
+          method(d);
+        });
+      }
+
+      function cookieRemove(move) {
+        $.ajax({
+          url: '/checkout',
+          type: 'POST',
+        }).done(function () {
+          if(move == 0)location.href = "/";
+        });
+      }
+
+      function driveSize() {
+        let size = 0;
+        $.ajax({
+          url: "/file/drive/size",
+          type: "POST",
+          dataType: "json",
+          contentType: "application/json; charset=utf-8",
+          async: false, //동기로 데이터 값 추출
+        })
+        .done((data) => {
+          size = data;
+        })
+        .fail(() => {
+          $("#cancleTitle").text("파일 용량 오류");
+          $("#cancleText").text("파일 용량 가져오기 실패");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+        })
+        return size;
+      }
+
+      function loadMemberUserDriveSize() {
+        let promise = new Promise((resolve, reject) => {
+            resolve(driveSize());
+        });
+        promise.then( (size) => {
+          // console.log("값", size)
+          let usedSize = size.usedSize/1024/1024/1024;
+          let progress = usedSize/size.totalUsualSize * 100
+          console.log("progress", usedSize, size.totalUsualSize, progress.toFixed(2));
+          $(".drive-size-bar").css("width", progress + "%");
+          $(".drive-used-size").text(usedSize.toFixed(2));
+          $(".drive-usual-size").text(size.totalUsualSize);
+        } );
+
+      }
+
+      // 업로드 할려고 올려놓은 파일리스트에 선택한 파일을 지우는 기능
+      function removeFileList(e) {
+        const removeTargetId = e.target.dataset.index;
+        const removeTarget = document.getElementById(removeTargetId);
+
+        let setFiles = [];
+        for (let file of filesToUpload) {
+          console.log("----------")
+          console.log(file.lastModified);
+          console.log(removeTargetId);
+          console.log( Number(file.lastModified) === Number(removeTargetId));
+          console.log("---------------");
+
+          if( Number(file.lastModified) !== Number(removeTargetId)) {
+            setFiles.push(file);
+          }
+        }
+        filesToUpload = setFiles;
+
+        console.log(filesToUpload);
+        removeTarget.remove();
+
+      }
+
+      function uploadOneAtATime() {
+        console.log("uploadOneAtATime");
+        //업로드한 파일 갯수 초기화
+        uploadedFileCount = 0;
+        let uploadFilesSize = 0;
+        for ( let file of filesToUpload ) {
+          // 폴더 여부 재검증 및 총 업로드 파일 사이즈 측정
+          uploadFilesSize += file.size;
+          if(file.size == 0 && (file.type == "" || file.type == null)) {
+            $("#cancleTitle").text("폴더 업로드");
+            $("#cancleText").text("폴더는 압축하여 업로드해주세요.");
+            $("#cancleBtn").text("확인");
+            $("#cancleModal").modal("toggle");
+            return;
+          }
+        }
+
+        // 하나씩 파일 업로드 하기 전 남은 사이즈 책정 재검증
+        let promise = new Promise( (resolve, reject) => {
+          resolve(driveSize())
+        } )
+
+        promise.then( (size) => {
+          let expectedSize = uploadFilesSize + size.usedSize;
+          let totalUsualSize = size.totalUsualSize*1024*1024*1024
+          // console.log(expectedSize);
+          // console.log(totalUsualSize);
+
+          if(expectedSize <= totalUsualSize) {
+             upload();
+          } else {
+            $("#cancleTitle").text("드라이브 용량 초과");
+            $("#cancleText").text("사용하실 수 있는 개인 드라이브 저장 용량을 초과하였습니다.");
+            $("#cancleBtn").text("확인");
+            $("#cancleModal").modal("toggle");
+          }
+        })
+      }
+
+      async function upload() {
+        if( uploadedFileCount == 0 ) {
+          //파일 업로드 중
+        }
+
+        if( uploadedFileCount == filesLength ) {
+          // 파일 업로드 완료
+          return;
+        }
+
+        let formData = new FormData();
+        formData.append("file", filesToUpload[uploadedFileCount]);
+        formData.append("fileUsage", "drive");
+        formData.append("directoryId", "main");
+        let testLink = location.href;
+        let onlyDrive = "N";
+        if( testLink.indexOf("/drive/") > -1 ) {
+          onlyDrive = "Y";
+        }
+        formData.append("onlyDrive", onlyDrive);
+
+        await $.ajax({
+          url: "/file/uploadFile",
+          type: "POST",
+          data: formData,
+          async: false,
+          processData: false,
+          contentType: false
+        }).done( (data) => {
+          console.log(data);
+
+          if( data == null || data == "") {
+            $("#cancleTitle").text("파일 추가 실패");
+            $("#cancleText").text("파일을 추가하는데 실패하였습니다.");
+            $("#cancleBtn").text("확인");
+            $("#cancleModal").modal("toggle");
+            uploadedFileCount = filesLength;
+            return;
+          }
+          grpFileIdList.push( data ); // 업로드된 파일 아이디 그룹리스트에 저장
+          uploadedFileCount++;
+          upload();
+        }).fail( (a,b,c) => {
+          console.log(a,b,c);
+        })
+      }
+
+      async function createGrp() {
+        let utilParam = {
+          listData : "",
+        }
+
+        for ( let fileId of grpFileIdList ) {
+          utilParam.listData += fileId + ","
+        }
+        utilParam.listData = utilParam.listData.substring(utilParam.listData.length-1, utilParam.listData.length);
+
+        let grpId = null;
+        await $.ajax({
+          url: "/grp/insert",
+          type: "POST",
+          data: JSON.stringify({ "listData" : grpFileIdList }),
+          traditional: true,
+          dataType: "json",
+          contentType: "application/json; charset=utf-8",
+          async: false,
+        }).done( (data) => {
+          console.log("data : " + data);
+          grpId = data;
+        }).fail( (a,b,c) => {
+          $("#cancleTitle").text("파일 그룹 추가 실패");
+          $("#cancleText").text("파일 그룹 추가 실패하는데 실패하였습니다.");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+          console.log(a,b,c);
+        })
+
+        return grpId;
+      }
+
+      async function checkFileAndGrpUpload() {
+
+        if(
+                filesToUpload.length > 0
+        ) {
+          await uploadOneAtATime();
+        }
+        console.log("여기까지 grpFileIdList", grpFileIdList);
+
+        //업로드한 파일이 있으면 파일 그룹 만들기
+        let grpId = null;
+        if(
+                grpFileIdList.length > 0
+        ) {
+          grpId = await createGrp();
+          console.log("과연 결과는? :" + grpId);
+        }
+
+        //////////////////////////////////////////////////////////
+        // 그 다음 여기 부분에 드라이브에 있는 파일을 참조하는 경우 넣을거!
+        //////////////////////////////////////////////////////////
+
+        return grpId; // grpId가 null이냐 아니냐에 따라 task 등에 인서트할때 같이 넘기면 됨
+      }
+
+      function downloadFile(i) {
+        // console.log(i);
+
+        let fileId = "";
+
+        if ( i.current.fileId !== null && i.current.fileId !== undefined && i.current.fileId !== "" ) {
+          fileId = i.current.fileId;
+        } else if ( i.current.FILE_ID !== null && i.current.FILE_ID !== undefined && i.current.FILE_ID !== "" ) {
+          fileId = i.current.FILE_ID;
+        } else {
+          $("#cancleTitle").text("파일 다운로드 실패");
+          $("#cancleText").text("파일 다운로드에 실패하였습니다.");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+          return;
+        }
+
+        window.open(
+                "http://localhost:8072/file/download/" + fileId,
+                "_blank"
+        );
+
+      }
+
+      function downloadFilebyIdList() {
+
+        for ( let fileId of selectFileIdList )
+          window.open(
+                  "http://localhost:8072/file/download/" + fileId.replace(".fid-", ""),
+                  "_blank"
+          );
+      }
+
+      function deleteFiles() {
+        if ( selectFileIdList.length === 0 ) {
+          return;
+        }
+
+        if ( deleteFileCount == selectFileIdList.length ) {
+          selectFileIdList = [];
+          return;
+        }
+        console.log("selectFileIdList", selectFileIdList);
+        console.log("selectFileIdList[deleteFileCount]", selectFileIdList[deleteFileCount]);
+
+        $.ajax( {
+          url: "/file/delete",
+          type: "POST",
+          data: JSON.stringify({ "fileId" : selectFileIdList[deleteFileCount].replace( "fid-", "" ) }),
+          async: false,
+          dataType: "json",
+          contentType: "application/json; charset=utf8"
+        } )
+        .done( ( data ) => {
+          if( data === null || data === "" || data === 99) {
+            $("#cancleTitle").text("파일 삭제 실패");
+            $("#cancleText").text("파일을 삭제하는데 실패하였습니다.");
+            $("#cancleBtn").text("확인");
+            $("#cancleModal").modal("toggle");
+            deleteFileCount = selectFileIdList.length;
+            return;
+          }
+          deleteFileCount++;
+          deleteFiles();
+        } )
+        .fail( () => {
+          $("#cancleTitle").text("파일 삭제 실패");
+          $("#cancleText").text("파일을 삭제하는데 실패하였습니다.");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+        });
+      }
+    </script>
+  </th:block>
+</html>

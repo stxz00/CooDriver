@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout2}">
+<th:block layout:fragment="content">
+  <div class="container-lg mt-5" id="content-body">
+    <div class="col-12 px-1 py-1 ">
+      <div class="jumbotron">
+        <div class="row justify-content-center align-middle">
+          <div class="col-8 mt-5 mb-5 jumbotron-content">
+            <form th:action="@{insertTask}" th:object="${taskParam}">
+              <h1 class="display-4 text-center">NewTask</h1>
+              <hr class="my-4">
+              <!--제목-->
+              <div class="row align-items-center mt-2 mb-2">
+                Title
+                <input type="text" th:field="*{taskNm}" id="taskName" class="form-control">
+              </div>
+              <!--설명-->
+              <div class="row align-items-center mt-2 mb-2">
+                Content
+                <textarea class="form-control" rows="5" th:field="*{taskIntro}" id="taskContent"></textarea>
+              </div>
+              <hr class="my-4">
+              <a th:onclick="taskInsert()" class="btn btn-outline-secondary btn-lg">Submit</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script th:inline="javascript">
+      function taskInsert(){
+        let title = document.getElementById("taskName").value;
+        let content = document.getElementById("taskContent").value;
+        let data = {
+          taskTitle : title,
+          taskContent : content
+        };
+
+        let url = "insertTask";
+        let method = function(d){
+          let links = document.location.pathname.split("/");
+          let link = "/" + links[1] + "/" + links[2] + "/" + "main";
+          location.href = link;
+        }
+
+        ajaxSender(url, data, "POST", method);
+      }
+
+    </script>
+  </div>
+
+</th:block>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html
+        lang="ko"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout2}"
+>
+<th:block layout:fragment="content">
+  <div class="container-lg mt-5 px-3 tab-content" id="content-body">
+    <th:block th:replace="/layout/fragments/ver2/adminTop :: adminTopFragment(tab='admin_member')"></th:block>
+    <div class="tab-pane container-lg active" id="navuserDiv">
+      <table class="table custom-table mt-3" id="navuser">
+        <thead>
+        <tr>
+          <th scope="col">MEMBER</th>
+          <th scope="col">NAME</th>
+          <th scope="col">DEPT</th>
+          <th scope="col">RANK</th>
+          <th scope="col">EMAIL</th>
+          <th scope="col">PHONE</th>
+          <th scope="col">CREDT</th>
+          <th scope="col">STATUS</th>
+          <th scope="col">POSITION</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${list}" style="height:50px" th:if="${user.USE_YN} == 'Y' and ${user.INV_YN} == 'Y'">
+          <input type="hidden" class="inputPos" th:value="${user.POSITION}">
+          <input type="hidden" class="inputId" th:value="${user.USER_ID}">
+          <th scope="row" class="align-middle">[[${user.MEMBER_NM}]]</th>
+          <td class="align-middle">[[${user.USER_NM}]]</td>
+          <td class="align-middle">[[${user.DEPT}]]</td>
+          <td class="align-middle">[[${user.RANK}]]</td>
+          <td class="align-middle">[[${user.USER_EMAIL}]]</td>
+          <td class="align-middle">[[${user.HP_NO}]]</td>
+          <td class="align-middle">[[${user.CRE_DT}]]</td>
+          <td class="align-middle">
+            정상<a class="text-body" th:attr="onclick=|invUser('${user.USER_ID}', 'ban')|" th:text="' [중지]'"></a>
+          </td>
+          <td class="align-middle">
+            <select class="form-select" th:disabled="${user.POSITION} == 9" onclick="setPrev(this.value)" th:attr="onchange=|changePosition(this, '${user.USER_ID}')|">
+              <option th:selected="${user.POSITION}==${num}" th:each="num:${#numbers.sequence(0,9)}" th:value="${num}" th:text="${num}"></option>
+            </select>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane container-lg fade" id="navbanDiv">
+      <table class="table custom-table mt-3" id="navban">
+        <thead>
+        <tr>
+          <th scope="col">MEMBER</th>
+          <th scope="col">NAME</th>
+          <th scope="col">DEPT</th>
+          <th scope="col">RANK</th>
+          <th scope="col">EMAIL</th>
+          <th scope="col">PHONE</th>
+          <th scope="col">CREDT</th>
+          <th scope="col">STATUS</th>
+          <th scope="col">POSITION</th>
+          <th scope="col">BAN</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${list}" style="height:50px" th:if="${user.USE_YN} == 'N' and ${user.INV_YN} == 'Y'">
+          <th scope="row" class="align-middle">[[${user.MEMBER_NM}]]</th>
+          <td class="align-middle">[[${user.USER_NM}]]</td>
+          <td class="align-middle">[[${user.DEPT}]]</td>
+          <td class="align-middle">[[${user.RANK}]]</td>
+          <td class="align-middle">[[${user.USER_EMAIL}]]</td>
+          <td class="align-middle">[[${user.HP_NO}]]</td>
+          <td class="align-middle">[[${user.CRE_DT}]]</td>
+          <td class="align-middle">
+            이용중지<a class="text-body" th:attr="onclick=|invUser('${user.USER_ID}', 'pardon')|"> [해제]</a>
+          </td>
+          <td class="align-middle">[[${user.POSITION}]]</td>
+          <td class="align-middle">
+            <a class="text-danger" th:attr="onclick=|rmvUser('${user.USER_ID}')|"> [해제]</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane container-lg fade" id="navinvDiv">
+      <table class="table custom-table mt-3" id="navinv">
+        <thead>
+        <tr>
+          <th scope="col">NAME</th>
+          <th scope="col">EMAIL</th>
+          <th scope="col">CREDT</th>
+          <th scope="col">STATUS</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${list}" style="height:50px" th:if="${user.INV_YN} == 'N'">
+          <td class="align-middle">[[${user.USER_NM}]]</td>
+          <td class="align-middle">[[${user.USER_EMAIL}]]</td>
+          <td class="align-middle">[[${user.CRE_DT}]]</td>
+          <td class="align-middle"><a class="text-body" th:attr="onclick=|invUser('${user.USER_ID}', 'inv')|">초대</a></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <script th:inline="javascript">
+      let prev;
+
+      $(document).ready(function() {
+        posSet();
+      });
+
+      function posSet(){
+        let pos = $("#navuser .inputPos").get();
+        let userId = $("#navuser .inputId").get();
+        let select = $("#navuser select").get();
+
+        for(let i = 0; i < pos.length; i++){
+          if(pos[i].value >= localStorage.getItem("position") || userId == localStorage.getItem("userId")){
+            select[i].disabled = true;
+          }
+        }
+      }
+
+      function invUser(id, methodKey){
+        let link = "/replace/" + localStorage.getItem("memberAddress") + "/invUser";
+
+        $.ajax({
+          type: "POST",
+          url: link,
+          data: {
+            id: id,
+            method: methodKey
+          }
+        }).done((data) => {
+          let id = null;
+          if(methodKey == "inv"){
+            id = "#navinv";
+          }
+          else if(methodKey == "ban"){
+            id = "#navuser";
+          }
+          else if(methodKey == "pardon"){
+            id = "#navban";
+          }
+          $(id).replaceWith(data);
+        });
+      }
+
+      function tabLoader(tab){
+        let link = "/replace/" + localStorage.getItem("memberAddress") + "/tabLoader";
+        $.ajax({
+          type: "POST",
+          url: link,
+          data: {
+            tab : tab
+          }
+        }).done((data) => {
+          let id = "#nav"+tab;
+          $(id).replaceWith(data);
+          posSet();
+        });
+      }
+
+      function rmvUser(id){
+        let link = "/replace/" + localStorage.getItem("memberAddress") + "/rmvUser";
+
+        $.ajax({
+          type: "POST",
+          url: link,
+          data: {
+            id: id,
+          }
+        }).done((data) => {
+          $("#navban").replaceWith(data);
+        });
+      }
+
+      function changePosition(select, id){
+        let val = select.value;
+        let selects = select.children;
+        let pos = localStorage.getItem("position");
+        if(val >= pos){
+          $("#cancleTitle").text("권한 수정 실패");
+          $("#cancleText").text("자신과 같거나 자신보다 높은 등급의 권한을 설정할 수 없습니다.");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+          selects[prev].selected = true;
+        }else{
+          let link = "/team/" + localStorage.getItem("memberAddress") + "/posUpdate";
+          $.ajax({
+            type: "POST",
+            url: link,
+            data: {
+              userId : id,
+              pos : val
+            }
+          });
+        }
+      }
+
+      function setPrev(val){
+        prev = val;
+      }
+    </script>
+  </div>
+
+</th:block>
+</html>

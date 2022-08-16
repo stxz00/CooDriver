@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<th:block layout:fragment="content">
+    <div class="row mr-0 ml-0" id="content-body">
+        <div class="col-12 px-1 py-1 ">
+            <div class="jumbotron">
+                <div class="row g-0 justify-content-center align-middle">
+                    <div class="col-8 mt-5 mb-5 jumbotron-content">
+                        <form th:action="@{/insert}" method="POST" id="joinForm">
+                            <h1 class="display-4">회원가입</h1>
+<!--                            <p class="lead">회원가입 창이에요</p>-->
+                            <hr class="my-4">
+                            <!--이름-->
+                            <div class="row align-items-center mt-2 mb-2">
+                                <div class="col-md-2 col-6 py-1">
+                                    <label for="inputName" class="col-form-label">Name<sup>*</sup></label>
+                                </div>
+                                <div class="col-auto py-1">
+                                    <input type="text" id="inputName" class="form-control" name="userNm">
+                                </div>
+                                <div class="col-auto py-1">
+                                <span id="nameLabel" class="form-text">
+
+                                </span>
+                                </div>
+                            </div>
+                            <!--나이-->
+                            <div class="row align-items-center mt-2 mb-2">
+                                <div class="col-md-2 col-6 py-1">
+                                    <label for="inputAge" class="col-form-label">Age</label>
+                                </div>
+                                <div class="col-auto py-1">
+                                    <input type="text" id="inputAge" class="form-control" name="userAge">
+                                </div>
+                                <div class="col-auto py-1">
+                                    <span id="ageLabel" class="form-text">
+
+                                    </span>
+                                </div>
+                            </div>
+                            <!--성별-->
+                            <div class="row align-items-center mt-2 mb-2">
+                                <div class="col-md-2 col-6 py-1">
+                                    <label for="inputGender" class="col-form-label">Gender<sup>*</sup></label>
+                                </div>
+                                <div class="col-auto py-1">
+                                    <div id="inputGender">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="userGender" type="radio" id="inlineRadio1" value="M" checked/>
+                                            <label class="form-check-label" for="inlineRadio1">Male</label>
+                                        </div>
+
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" name="userGender" type="radio" id="inlineRadio2" value="F" />
+                                            <label class="form-check-label" for="inlineRadio2">Female</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--아이디-->
+                            <div class="row align-items-center mt-2 mb-2">
+                                <div class="col-md-2 col-6 py-1">
+                                    <label for="inputId" class="col-form-label">Id<sup>*</sup></label>
+                                </div>
+                                <div class="col-auto py-1">
+                                    <input type="text" id="inputId" class="form-control" name="userId" aria-describedby="idLabel">
+                                </div>
+                                <div class="col-auto py-1">
+                                <span id="idLabel" class="form-text">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="duplicateCheck()">DuplicateCheck</button>
+                                    <span></span>
+                                </span>
+                                </div>
+                            </div>
+                            <!--비밀번호-->
+                            <div class="row align-items-center mt-2 mb-2">
+                                <div class="col-md-2 col-6 py-1">
+                                    <label for="inputPassword" class="col-form-label">Password<sup>*</sup></label>
+                                </div>
+                                <div class="col-auto py-1">
+                                    <input type="password" id="inputPassword" class="form-control" name="userPw" aria-describedby="passwordLabel">
+                                </div>
+                                <div class="col-auto py-1">
+                                <span id="passwordLabel" class="form-text">
+                                  8~20글자
+                                </span>
+                                </div>
+                            </div>
+                            <!--이메일-->
+                            <div class="row align-items-center mt-2 mb-2">
+                                <div class="col-md-2 col-6 py-1">
+                                    <label for="inputEmail" class="col-form-label">Email<sup>*</sup></label>
+                                </div>
+                                <div class="col-auto py-1">
+                                    <input type="text" id="inputEmail" class="form-control" name="userEmail" aria-describedby="emailLabel">
+                                </div>
+                                <div class="col-auto py-1">
+                                <span id="emailLabel" class="form-text">
+                                  주소 select
+                                </span>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <button type="button" class="btn btn-outline-secondary" onclick="joinSubmit()">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            function duplicateCheck(){
+                let id = $("#inputId").val();
+                if(!id){
+                    $("#idLabel > span").text("아이디를 입력해주세요.");
+                    $("#idLabel > span").removeClass("checked");
+                    return;
+                }
+                else $.ajax({
+                    url: "/duplicateCheck",
+                    type: "POST",
+                    data: {
+                        userId : id
+                    },
+                }).done(function (result) {
+                    if(result == 'Y'){
+                        $("#idLabel > span").text("사용 가능한 아이디입니다");
+                        $("#idLabel > span").addClass("checked");
+                    }else if(result == 'N'){
+                        $("#idLabel > span").text("사용 불가능한 아이디입니다");
+                        $("#idLabel > span").removeClass("checked");
+                    }
+                }).fail(() => {
+                    $("#cancleTitle").text("검사 오류");
+                    $("#cancleText").text("알수 없는 문제가 발생하여 정상 처리되지 않았습니다.");
+                    $("#cancleBtn").text("확인");
+                    $("#cancleModal").modal("toggle");
+                });
+            }
+
+            function joinSubmit(){
+                var getMail = RegExp(/^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/);
+                var getCheck= RegExp(/^[a-zA-Z0-9]{4,12}$/);
+                var getName= RegExp(/^[가-힣]+$/);
+
+                let name = $('#inputName').val();
+                let userId = $("#inputId").val();
+                let pw = $("#inputPassword").val();
+                let email = $("#inputEmail").val();
+
+                if(!name){
+                    $("#nameLabel").text("이름을 입력해주세요.");
+                    $("#inputName").focus();
+                    return;
+                }
+                else if(!getName.test(name)){
+                    $("#nameLabel").text("형식에 맞게 입력해주세요.");
+                    $('#inputName').val("");
+                    $('#inputName').focus();
+                    return;
+                }
+                if(!userId){
+                    $("#idLabel > span").text("아이디를 입력해주세요.");
+                    $("#idLabel > span").removeClass("checked");
+                    $("#inputId").focus();
+                    return;
+                }
+                else if(!getCheck.test(userId)){
+                    $("#idLabel > span").text("4~12자의 영문 대소문자와 숫자");
+                    $("#idLabel > span").removeClass("checked");
+                    $("#inputId").focus();
+                    return;
+                }
+                if(!pw){
+                    $("#passwordLabel").text("비밀번호를 입력해주세요.");
+                    $("#inputPassword").focus();
+                    return;
+                }
+                else if(!getCheck.test(pw)){
+                    $("#passwordLabel").text("4~12자의 영문 대소문자와 숫자");
+                    $("#inputPassword").focus();
+                    return;
+                }
+                if(!email){
+                    $("#emailLabel").text("메일을 입력해주세요.");
+                    $("#inputEmail").focus();
+                    return;
+                }
+                else if(!getMail.test(email)){
+                    $("#emailLabel").text("형식에 맞게 입력해주세요");
+                    $("#inputEmail").focus();
+                    return;
+                }
+                if(!$("#idLabel > span").hasClass("checked")){
+                    $("#idLabel > span").text("사용 불가능한 아이디입니다");
+                    $("#idLabel > span").removeClass("checked");
+                    return;
+                }
+
+                $("#joinForm").submit();
+            }
+        </script>
+    </div>
+</th:block>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="userInviteModalFragment">
+    <div class="modal fade" tabindex="-1" id="userInviteModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userInvTitle">UserList</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered" style="width: 100%">
+                        <colgroup>
+                            <col width="70%">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <table cellpadding="0" class="table m-0 table-hover" cellspacing="0"  style="width: 100%">
+                                    <colgroup>
+                                        <col width="30%">
+                                        <col>
+                                    </colgroup>
+                                    <thead>
+                                    <tr>
+                                        <th>
+                                            UserNm
+                                        </th>
+                                        <th>
+                                            UserId
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="userInvModalBody">
+
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td id="userInvModalListBody">
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="unserInvToggleBtn">cancel</button>
+                    <button type="button" class="btn btn-primary" id="userListConfirmBtn" th:attr="onclick=|userInviteForTask()|">invite</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.UserInfoMapper">
+    <insert id="insertUserInfo" parameterType="UserInfoParam">
+        INSERT INTO tb_user_info (
+                             USER_ID,
+                             USER_NM,
+                             USER_AGE,
+                             USER_GENDER,
+                             USER_EMAIL,
+                             HP_NO,
+                             ADDR,
+                             ADDR_DTL,
+                             PROFILE_ATTACH_ID
+                             )
+                             VALUES (
+                             #{userId}, #{userNm}, #{userAge}, #{userGender}, #{userEmail}, #{hpNo}, #{addr}, #{addrDtl}, #{profileAttachId}
+                             );
+    </insert>
+
+    <select id="selectUserInfo" parameterType="String" resultType="UserInfoParam">
+        SELECT * FROM tb_user_info where USER_ID = #{id};
+    </select>
+
+    <select id="selectUserDataList" parameterType="PageParam" resultType="hashmap">
+        select
+            tui.USER_NM, tui.USER_ID, tui.USER_EMAIL, tm.MEMBER_NM, date_format(tui.CRE_DT, '%Y-%m-%d %T') as CRE_DT
+        from tb_user_info tui
+            left join tb_member_user_list tmul on tui.USER_ID = tmul.USER_ID
+            left join tb_member tm on tm.MEMBER_KEY = tmul.MEMBER_KEY
+            left join tb_user tu on tui.USER_ID = tu.USER_ID
+        where tu.USER_ROLE not like '%ROLE_ADMIN%' and tu.USE_YN = 'Y'
+        order by tui.CRE_DT desc
+        LIMIT #{limit} OFFSET #{offset};
+    </select>
+</mapper>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.MemberMapper">
+    <insert id="insertMember" parameterType="MemberParam">
+        INSERT INTO tb_member (
+                MEMBER_KEY,
+                MEMBER_NM,
+                MEMBERSHIP,
+                MEMBER_INTRO,
+                MEMBER_ADDRESS,
+                PROFILE_ATTACH_ID,
+                CONTACT,
+                CRE_USER_ID,
+                UPD_USER_ID
+            )
+            VALUES (
+                #{memberKey},
+                #{memberNm},
+                #{membership},
+                #{memberIntro},
+                #{memberAddress},
+                #{profileAttachId},
+                #{contact},
+                #{creUserId},
+                #{updUserId}
+            );
+    </insert>
+    <select id="getMemberList" parameterType="PageParam" resultType="map">
+        SELECT tm.MEMBER_KEY, tm.MEMBER_NM, tm.MEMBER_INTRO, tm.MEMBER_ADDRESS, tm.CRE_USER_ID,
+               date_format(tm.CRE_DT, '%Y-%m-%d %T') as CRE_DT,
+               date_format(tm.UPD_DT, '%Y-%m-%d %T') as UPD_DT,
+               tc.TASK_CNT, uc.USER_CNT
+        FROM tb_member tm
+                 left join
+             (SELECT tm.MEMBER_KEY, COUNT(tt.TASK_KEY) as TASK_CNT
+              FROM tb_member tm
+                       left join tb_task tt on tm.MEMBER_KEY = tt.MEMBER_KEY
+              WHERE tm.USE_YN='Y'
+              group by tm.MEMBER_KEY) tc
+             on tm.MEMBER_KEY = tc.MEMBER_KEY
+                 left join
+             (SELECT tm.MEMBER_KEY, COUNT(tmul.MEMBER_KEY) as USER_CNT
+              FROM tb_member tm
+                       left join tb_member_user_list tmul on tm.MEMBER_KEY = tmul.MEMBER_KEY
+              WHERE tm.USE_YN='Y'
+              group by tm.MEMBER_KEY) uc
+             on tm.MEMBER_KEY = uc.MEMBER_KEY
+        WHERE tm.USE_YN='Y'
+        group by tm.MEMBER_NM, tm.MEMBER_INTRO, tm.MEMBER_ADDRESS, tm.CRE_USER_ID,
+                 CRE_DT, UPD_DT
+        order by tm.CRE_DT desc
+        LIMIT #{limit} OFFSET #{offset};
+    </select>
+    <select id="getUserTotalCnt" resultType="_int" parameterType="String">
+        SELECT COUNT(*)
+        FROM tb_member
+        WHERE CRE_USER_ID = #{id}
+          AND USE_YN='Y';
+    </select>
+    <select id="getMemberKey" parameterType="String" resultType="String">
+        SELECT MEMBER_KEY FROM tb_member
+        WHERE MEMBER_ADDRESS = #{address}
+    </select>
+    <select id="getMemberFromAddress" parameterType="String" resultType="MemberParam">
+        SELECT * FROM tb_member
+        WHERE MEMBER_ADDRESS = #{address}
+    </select>
+    <select id="getMemberAddressFromUserId" parameterType="String" resultType="String">
+        SELECT MEMBER_ADDRESS FROM tb_member
+        WHERE CRE_USER_ID = #{id}
+    </select>
+    <!--멤버 키로 멤버 어드레스를 추출하는 sql 짜야함-->
+    <select id="getMemberAddressFromKey" parameterType="String" resultType="String">
+        SELECT MEMBER_ADDRESS FROM tb_member
+        WHERE MEMBER_KEY = #{key};
+    </select>
+    <select id="getMemberTotalCnt" resultType="_int">
+        SELECT COUNT(*)
+        FROM tb_member where USE_YN = 'Y';
+    </select>
+    <update id="memberYnSwitch" parameterType="String">
+        update tb_member set USE_YN = case when USE_YN = 'Y' then 'N' else 'Y' end where MEMBER_KEY=#{memberKey};
+    </update>
+</mapper>

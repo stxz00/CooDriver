@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- sidebar -->
+<th:block th:fragment="driveSidebarFragment">
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark sidebar drive-sidebar" style="width: 250px; height:100%">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 justify-content-center text-white text-decoration-none">
+            <span class="fs-4">TeamBox</span>
+        </a>
+        <hr>
+        <button type="button" class="btn btn-primary btn-lg" onclick="pageMove_newTask()">New Task</button>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a class="nav-link text-white active" aria-current="page">
+                    전체
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    PDF
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    워드
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    엑셀
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    한글
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    파워포인트
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    이미지
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    음악, 동영상
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    HTML
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    CAD
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" onclick="moveSearch('join')">
+                    압축파일
+                </a>
+            </li>
+            <li class="nav-item">
+                <div class="input-group mb-3">
+                    <input
+                            type="search"
+                            class="form-control search-exp"
+                            placeholder="확장자명으로 검색"
+                            aria-label="Recipient's username"
+                            aria-describedby="basic-addon2"
+                            onkeyup="enterKey()"
+                    >
+                    <div class="input-group-append" th:onclick="searchExtension()" style="cursor: pointer;">
+                        <span class="input-group-text" id="basic-addon2">
+                            <img th:src="@{/img/magnify.png}"></img>
+                        </span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <script>
+        function pageMove_newTask(){
+            // /{address}/task/newTask
+            let links = document.location.pathname.split("/");
+            let link = "/" + links[1] + "/" + links[2] + "/" + "task/newTask";
+            move(link);
+        }
+
+        $(document).ready(function () {
+            let page = window.location.href;
+            if( page.indexOf("/exp/") > 0 ) {
+                $(".normal-sidebar").addClass("display-none")
+            } else {
+                $(".drive-sidebar").addClass("display-none")
+            }
+        });
+
+        function enterKey() {
+            if (window.event.keyCode == 13) {
+                searchExtension();
+            }
+        }
+
+        function searchExtension () {
+            let search = $(".search-exp").val().toUpperCase();
+            let links = document.location.pathname.split("/");
+            let link = "/" + links[1] + "/" + links[2] + "/exp/" + search;
+            move(link);
+        }
+
+        function moveSearch(exp) {
+
+        }
+    </script>
+</th:block>
+
+</html>

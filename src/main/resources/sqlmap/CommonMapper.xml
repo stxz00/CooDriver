@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.twk.thymeleafprac.mapper.CommonMapper">
+    <select id="getMenu" parameterType="String" resultType="MenuParam">
+        SELECT * FROM tb_menu where MENU_TYPE = #{type} order by MENU_DEPTH DESC, SORT_NO;
+    </select>
+
+    <select id="getMenuType" resultType="String">
+        SELECT distinct MENU_TYPE from tb_menu;
+    </select>
+
+    <select id="getMenuDepth" parameterType="String" resultType="_int">
+        SELECT distinct MENU_DEPTH from tb_menu where MENU_TYPE = #{type};
+    </select>
+
+    <select id="selectMemberNo" resultType="String">
+        select concat(DATE_FORMAT(NOW(),'%Y%m%d') , nextval(SQ_MEMBER_NO)) MEMBER_NO
+    </select>
+
+    <select id="selectAttchFileGrpNo" resultType="String">
+        select concat(DATE_FORMAT(NOW(),'%Y%m%d') , nextval(SQ_ATTCH_FILE_GRP)) ATTCH_FILE_GRP_NO
+    </select>
+
+</mapper>

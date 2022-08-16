@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="editCodeDtlModalFragment">
+    <div class="modal fade" tabindex="-1" id="editCodeDtlModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content ">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <p>공통상세코드 수정</p>
+                            <form id="editCodeDtlForm">
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <label for="editCmDtlCode" class="form-label">공통상세코드<span style="color: red; font-size: 13px" class="cmDtlCodeErr"></span></label>
+                                        <input class="form-control" type="text" id="editCmDtlCode" readonly placeholder="공통상세코드 입력" />
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <label for="editCmDtlCodeNm" class="form-label">공통코드명</label>
+                                        <input class="form-control" type="text" id="editCmDtlCodeNm" placeholder="공통상세코드명 입력" />
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <label for="editCmDtlCodeExp" class="form-label">공통상세코드설명</label>
+                                        <input class="form-control" type="text" id="editCmDtlCodeExp" placeholder="공통코드설명 입력" />
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-primary" id="editCodeDtlConfirm" th:onclick="editCodeDtl()">추가</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="editCodeDtlCancleBtn">취소</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

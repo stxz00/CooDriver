@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html
+        lang="ko"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout}"
+>
+<th:block layout:fragment="content">
+    <div class="row mr-0 ml-0">
+        <div class="col-12 px-1 py-1">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-8 mt-5 mb-5 jumbotron-content">
+                        <h1 class="display-4" th:text="${board.boardTitle}"></h1>
+                        <p class="lead" th:text="${'작성자 : ' + board.boardUser}"></p>
+                        <p class="lead" th:text="${'작성일 : ' + #strings.arraySplit(board.creDt,' ')[0]}"></p>
+                        <hr class="my-4">
+                        <div class="mb-3">
+                            <textarea readonly class="form-control" rows="5" th:text="${board.boardContent}"></textarea>
+                        </div>
+                        <hr class="my-4">
+                        <p class="lead">댓글</p>
+                        <ul class="list-group " id="cmt-content">
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto w-100">
+                                    <textarea class="form-control" rows="3" id="cmtContent"></textarea>
+                                </div>
+                                <div class="my-auto mx-1">
+                                    <a class="btn btn-outline-secondary btn-custom" role="button" th:onclick="commitCmt()">Commit</a>
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-start"
+                            th:each="cmt : ${cmts}">
+                                <div class="ms-2 me-auto">
+                                    <figure>
+                                        <blockquote class="blockquote">
+                                            [[${cmt.cmtUser}]]
+                                        </blockquote>
+                                        <figcaption class="blockquote-footer">
+                                            [[${cmt.creDt}]]
+                                        </figcaption>
+                                    </figure>
+                                    [[${cmt.cmtContent}]]
+                                </div>
+                                <span class="badge bg-danger rounded-pill">
+                                    <span class="badge bg-danger rounded-pill">[[${cmt.cmtLike}]]</span>
+                                    <a class="badge btn bg-danger rounded-pill" th:onclick="favorite([[${cmt}]])">
+                                        <svg th:if="${cmt.cmtCheck == 0}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                        </svg>
+                                        <svg th:unless="${cmt.cmtCheck == 0}" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                                        </svg>
+                                    </a>
+                                </span>
+                            </li>
+                        </ul>
+                        <hr class="my-4">
+                        <a class="btn btn-outline-secondary btn-custom" role="button" th:href="'#'">Modify</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        function favorite(cmt){
+            let ajax_data =
+                { "cmtKey" : cmt.cmtKey, "cmtBoard" : cmt.cmtBoard };
+            let ajax_url = "favToggle";
+            let ajax_type = "POST";
+            let replace_id = "#cmt-content";
+            ajaxSender(ajax_data, ajax_url, ajax_type, replace_id);
+        }
+
+        function commitCmt(){
+            let board = /*<![CDATA[*//*[[ ${board} ]]*/;/*]]*/
+            let content = document.getElementById("cmtContent").value;
+            let ajax_data =
+                { "cmtContent" : content, "cmtBoard" : board.boardKey };
+            let ajax_url = "commitCmt";
+            let ajax_type = "POST";
+            let replace_id = "#cmt-content";
+            ajaxSender(ajax_data, ajax_url, ajax_type, replace_id);
+        }
+    </script>
+</th:block>
+</html>

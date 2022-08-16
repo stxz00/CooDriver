@@ -1,0 +1,70 @@
+<form th:action="@{/insert}" th:object="${userParam}" method="GET">
+  이름 <input type="text" th:field="*{userNm}"> <br>
+  아이디 <input type="text" th:field="*{userId}"> <br>
+  비번 <input type="text" th:field="*{userPw}"> <br>
+
+  <input type="submit">
+</form>
+
+<div class="layout-content">
+  <ul>
+    <li>[[${user.userId}]]</li>
+    <li>[[${user.userPw}]]</li>
+    <li>[[${user.userNm}]]</li>
+  </ul>
+</div>
+
+// var client = new XMLHttpRequest();
+// client.open('GET', 'demo.cgi');
+// client.setRequestHeader('Authentication', token);
+// client.send();
+
+@RequestMapping("/")
+public String hello(@ModelAttribute UserParam userParam) throws Exception {
+return "index";
+}
+
+@RequestMapping(value = "/insert", method = RequestMethod.GET)
+public String insert(Model model, UserParam userParam) {
+System.out.println(userParam);
+if(!userParam.getUserId().equals(null) && !userParam.getUserPw().equals(null) && !userParam.getUserNm().equals(null))
+userService.insertUser(userParam);
+
+model.addAttribute("user", userParam);
+return "result";
+}
+
+var pagination = /*<![CDATA[*//*[[ ${pagination} ]]*/;/*]]*/
+
+
+$.ajax({
+url: "/insert2",
+type: "POST",
+data: JSON.stringify(userParam),
+contentType: "application/json",
+dataType: "json"
+}).done((data) => {
+if (data === 1) {
+$("#joinModal").modal('show');
+} else {
+$("#cancleModal .modal-title").text("회원가입 실패");
+$("#cancleModal .cancle-content").text("중복된 아이디거나 잘못된 정보가 존재합니다.");
+$("#cancleModal").modal('show');
+}
+
+}).fail((xhr, status, errorThrown) => {
+//alert(xhr + status + errorThrown);
+$("#cancleModal .modal-title").text("회원가입 실패");
+$("#cancleModal .cancle-content").text("회원가입에 실패하였습니다.");
+$("#cancleModal").modal('show');
+});
+
+@PostMapping(value = "/insert2", consumes = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity insert2(@RequestBody UserParam userParam) throws Exception{
+return ResponseEntity.ok(userService.insertUser2(userParam));
+}
+
+log.info("userRole : " + request.isUserInRole("ROLE_USER"));
+log.info("userName : " + request.getRemoteUser());
+
+xmlns:sec="http://www.jboss.com/ws-security/config"

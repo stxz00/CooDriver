@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- sidebar -->
+<th:block th:fragment="sidebarFragment">
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark sidebar normal-sidebar">
+        <a href="/" class="d-flex align-items-center justify-content-center text-white text-decoration-none">
+            <span class="fs-4">TeamBox</span>
+        </a>
+        <hr>
+        <button type="button" class="btn btn-primary btn-lg" onclick="pageMove('task/newTask')">New Task</button>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item" id="admin_tab">
+                <button style="width:100%" class="text-white d-flex btn btn-toggle align-items-center justify-content-between text-start rounded" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false">
+                    <span class="ma-0 pa-0">Admin</span>
+                    <i class="xi-caret-down-circle-o"></i>
+                </button>
+                <div class="collapse" id="admin-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li>
+                            <a class="nav-link text-white" onclick="pageMove('admin/member')">
+                                User
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link text-white" onclick="pageMove('admin/task')">
+                                Task
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <button style="width:100%" class="text-white d-flex btn btn-toggle align-items-center justify-content-between text-start rounded" data-bs-toggle="collapse" data-bs-target="#drive-collapse" aria-expanded="true">
+                    <span class="ma-0 pa-0">Drive</span>
+                    <i class="xi-caret-down-circle-o"></i>
+                </button>
+                <div class="collapse show" id="drive-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li class="nav-item">
+                            <div style="font-size: 15px;">
+                                <span class="drive-usual-size">10</span>GB 중 <span class="drive-used-size">0</span>GB 사용
+                            </div>
+                            <div class="progress" style="height: 5px; margin: 5px 0px 15px 0px;">
+                                <div class="progress-bar drive-size-bar" style="width:0%"></div>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" aria-current="page" onclick="moveDrive()">
+                                드라이브
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" aria-current="page" onclick="moveSearch('')">
+                                전체
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('PDF')">
+                                PDF
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('DOC')">
+                                워드
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('EXCEL')">
+                                엑셀
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('HWP')">
+                                한글
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('PPT')">
+                                파워포인트
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('IMG')">
+                                이미지
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('MUSICVIDEO')">
+                                음악, 동영상
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('HTML')">
+                                HTML
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('CAD')">
+                                CAD
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" onclick="moveSearch('ZIP')">
+                                압축파일
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <div class="input-group mb-3">
+                                <input
+                                        type="search"
+                                        class="form-control search-exp"
+                                        placeholder="확장자명으로 검색"
+                                        aria-label="Recipient's username"
+                                        aria-describedby="basic-addon2"
+                                        onkeyup="enterKey()"
+                                >
+                                <div class="input-group-append" th:onclick="searchExtension()" style="cursor: pointer;">
+                        <span class="input-group-text" id="basic-addon2">
+                            <img th:src="@{/img/magnify.png}"></img>
+                        </span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+
+    <script>
+        window.addEventListener('resize', function(event){
+            $(".normal-sidebar").height('100%');
+        });
+
+
+        $(document).ready(function(){
+            let pos = localStorage.getItem('position');
+            if(pos < 8){
+                $("#admin_tab").addClass("d-none");
+            }else{
+                $("#admin_tab").removeClass("d-none");
+            }
+            loadMemberUserDriveSize();
+        });
+
+        function enterKey() {
+            if (window.event.keyCode == 13) {
+                searchExtension();
+            }
+        }
+
+        function searchExtension () {
+            let search = $(".search-exp").val().toUpperCase();
+            let links = document.location.pathname.split("/");
+            let link = "/" + links[1] + "/" + links[2] + "/exp/" + search;
+            move(link);
+        }
+
+        function moveSearch(exp) {
+            let links = document.location.pathname.split("/");
+            let link = "/" + links[1] + "/" + links[2] + "/exp/" + exp;
+            move(link);
+        }
+
+
+        function pageMove(url){
+            let links = document.location.pathname.split("/");
+            let link = "/" + links[1] + "/" + links[2] + "/" + url;
+            move(link);
+        }
+
+        function moveDrive(){
+            let links = document.location.pathname.split("/");
+            let link = "/" + links[1] + "/" + links[2] + "/drive/main";
+            move(link);
+        }
+    </script>
+</th:block>
+
+</html>

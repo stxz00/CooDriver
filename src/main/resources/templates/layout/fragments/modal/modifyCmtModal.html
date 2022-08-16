@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lagn="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- Modal -->
+<th:block th:fragment="modifyCmtModalFragment">
+    <div class="modal fade" tabindex="-1" id="modifyCmtModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-drop-box" ondragover="modalDragover(event)" ondragenter="modalDragenter(event)">
+                <div class="modal-file-ondragenter"
+                     ondragleave="modalDragleave(event)"
+                     ondrop="modalDrop3(event)"
+                     style="
+                         display: none; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;
+                         background: rgba(255,255,255, 0.8); z-index: 10; font-size: 18px; color: #555; text-align: center; caret-color: transparent;
+                         --bs-gutter-x: 0rem;
+                     "
+                >
+                    <div class="file-ondragenter-content text-center"
+                         style="
+                            position : absolute;
+                                        left : 50%;
+                                        top : 50%;
+                                        transform : translate(-50%, -50%);
+                                        z-index: 9;
+                         ">
+                        <div class="text-center">
+                            <img style="width: 150px; height: 150px; margin: auto; z-index: 9;" th:src="@{/img/dropbox.png}"></img>
+                            <div style="z-index: 9;">첨부할 파일, 이미지 등을 드래그하여 놓아주세요</div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modifyCmtTitle">댓글 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" style="width:100%" rows="5" id="modifyCmtContent" placeholder="내용을 입력하세요"></textarea>
+                    <div class="modal-upload-file-list modify-Cmt-file-list-row">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" th:onclick="cmtModify()" class="btn btn-outline-secondary" id="modifyCmtConfirmBtn">수정하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

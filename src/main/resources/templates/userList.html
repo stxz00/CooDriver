@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<th:block layout:fragment="content">
+    <div class="row mr-0 ml-0">
+        <div class="col-12 px-1 py-1 ">
+            <div class="jumbotron">
+                <div class="row justify-content-center align-middle">
+                    <div class="col-8 mt-5 mb-5 jumbotron-content">
+                        <h1 class="display-4">안녕안녕</h1>
+                        <p class="lead">유저목록이에요, 총 [[${pagination.totalItemCnt}]]명</p>
+                        <hr class="my-4">
+                        <div id="list-content" th:object="${pageParam}" th:if="${pagination.totalItemCnt > 0}">
+                            <div class="scroll-body">
+                                <div class="scroll-content">
+                                    <table class="table custom-table">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Key</th>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">EMAIL</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="user : ${list}">
+                                            <th scope="row">[[${user.USER_KEY}]]</th>
+                                            <td>[[${user.USER_ID}]]</td>
+                                            <td class="w-25">[[${user.USER_EMAIL}]]</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item" th:if="${pagination.nextCnt > 1}">
+                                        <a class="page-link" th:onclick="loadList_userList(6)" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li th:each="page : ${#numbers.sequence(0,pagination.curpaginationCnt-1)}"
+                                        th:attr="class=${pagination.curPage - 1 == page ? 'page-item active' : 'page-item'}">
+                                        <a class="page-link" th:onclick="'loadList_userList(' + ${page+ 1} + ');'" th:text="${page + 1 + pagination.paginationCnt * (pagination.nextCnt-1)}"></a>
+                                    </li>
+                                    <li class="page-item" th:if="${
+                                        pagination.nextCnt * pagination.limit * pagination.paginationCnt < pagination.totalItemCnt
+                                    }">
+                                        <a class="page-link" th:onclick="loadList_userList(7)" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <hr class="my-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        function loadList_userList(page){
+            let pagination = /*<![CDATA[*//*[[ ${pagination} ]]*/;/*]]*/
+            let url = "board/loadList";
+            let type = "POST";
+            let replace = '#list-content';
+            loadList(page, pagination, url, type, replace);
+        }
+    </script>
+</th:block>
+</html>

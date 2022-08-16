@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html
+        lang="ko"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout}"
+>
+<th:block layout:fragment="content">
+  <th:block th:replace="/layout/fragments/ver2/adminTop :: adminTopFragment(tab='admin_teambox')"></th:block>
+  <div class="container mt-5 tab-content" id="content-body">
+    <div class="tab-pane active" id="navtotalmemberDiv">
+      <div id="navtotalmember">
+        <table class="table table-hover custom-table mt-3">
+          <thead>
+          <tr>
+            <th scope="col">NAME</th>
+            <th scope="col">INTRO</th>
+            <th scope="col">ADDRESS</th>
+            <th scope="col">ADMIN</th>
+            <th scope="col">USERS</th>
+            <th scope="col">TASKS</th>
+            <th scope="col">CREDT</th>
+            <th scope="col">UPDDT</th>
+            <th scope="col">REMOVE</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="member : ${list}" style="height:50px">
+            <th scope="row" class="align-middle" th:text="${member.MEMBER_NM}"></th>
+            <td class="align-middle" th:text="${member.MEMBER_INTRO}"></td>
+            <td class="align-middle" th:text="${member.MEMBER_ADDRESS}"></td>
+            <td class="align-middle" th:text="${member.CRE_USER_ID}"></td>
+            <td class="align-middle" th:text="${member.USER_CNT}"></td>
+            <td class="align-middle" th:text="${member.TASK_CNT}"></td>
+            <td class="align-middle" th:text="${member.CRE_DT}"></td>
+            <td class="align-middle" th:text="${member.UPD_DT}"></td>
+            <td class="align-middle">
+              <a class="text-body" th:attr="onclick=|removeMember('${member.MEMBER_KEY}')|" th:text="'삭제'"></a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" th:if="${pagination.nextCnt > 1}">
+              <a class="page-link" th:onclick="loadList_memberList(6)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li th:each="page : ${#numbers.sequence(0,pagination.curpaginationCnt-1)}"
+                th:attr="class=${pagination.curPage - 1 == page ? 'page-item active' : 'page-item'}">
+              <a class="page-link" th:onclick="'loadList_memberList(' + ${page+ 1} + ');'" th:text="${page + 1 + pagination.paginationCnt * (pagination.nextCnt-1)}"></a>
+            </li>
+            <li class="page-item" th:if="${
+                                        pagination.nextCnt * pagination.limit * pagination.paginationCnt < pagination.totalItemCnt
+                                    }">
+              <a class="page-link" th:onclick="loadList_memberList(7)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="navtotaluserDiv">
+      <div id="navtotaluser">
+        <table class="table table-hover custom-table mt-3">
+          <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">NAME</th>
+            <th scope="col">EMAIL</th>
+            <th scope="col">MEMBER</th>
+            <th scope="col">CREDT</th>
+            <th scope="col">REMOVE</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="user : ${users}" style="height:50px" >
+            <th scope="row" class="align-middle" th:text="${user.USER_ID}"></th>
+            <td class="align-middle" th:text="${user.USER_NM}"></td>
+            <td class="align-middle" th:text="${user.USER_EMAIL}"></td>
+            <td class="align-middle" th:text="${user.MEMBER_NM}"></td>
+            <td class="align-middle" th:text="${user.CRE_DT}"></td>
+            <td class="align-middle">
+              <a class="text-body" th:attr="onclick=|removeUser('${user.USER_ID}')|" th:text="'삭제'"></a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" th:if="${pagination2.nextCnt > 1}">
+              <a class="page-link" th:onclick="loadList_adminUserList(6)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li th:each="page : ${#numbers.sequence(0,pagination2.curpaginationCnt-1)}"
+                th:attr="class=${pagination2.curPage - 1 == page ? 'page-item active' : 'page-item'}">
+              <a class="page-link" th:onclick="'loadList_adminUserList(' + ${page+ 1} + ');'" th:text="${page + 1 + pagination2.paginationCnt * (pagination2.nextCnt-1)}"></a>
+            </li>
+            <li class="page-item" th:if="${
+                                        pagination2.nextCnt * pagination2.limit * pagination2.paginationCnt < pagination2.totalItemCnt
+                                    }">
+              <a class="page-link" th:onclick="loadList_adminUserList(7)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <script th:inline="javascript">
+      function loadList_adminUserList(page){
+        let pagination = /*<![CDATA[*//*[[ ${pagination2} ]]*/;/*]]*/
+        let url = "/loadAdmin/user";
+        let type = "POST";
+        let replace = '#navtotaluser';
+        loadList(page, pagination, url, type, replace);
+      }
+      function loadList_memberList(page){
+        let pagination = /*<![CDATA[*//*[[ ${pagination} ]]*/;/*]]*/
+        let url = "/loadAdmin/member";
+        let type = "POST";
+        let replace = '#navtotalmember';
+        loadList(page, pagination, url, type, replace);
+      }
+      function removeMember(memberKey){
+        let pagination = /*<![CDATA[*//*[[ ${pagination} ]]*/;/*]]*/
+        $.ajax({
+          url: "/admin/removeMember/" + memberKey,
+          type: "POST",
+          data: pagination
+        }).done(function (list) {
+          $("#navtotalmember").replaceWith(list);
+          $("#cancleTitle").text("멤버 삭제 완료");
+          $("#cancleText").text("성공적으로 삭제 했습니다");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+        }).fail(() => {
+          $("#cancleTitle").text("리스트 로드 실패");
+          $("#cancleText").text("리스트를 가져오는데 실패하였습니다.");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+        });
+      }
+      function removeUser(userId){
+        let pagination = /*<![CDATA[*//*[[ ${pagination2} ]]*/;/*]]*/
+        $.ajax({
+          url: "/admin/removeUser/" + userId,
+          type: "POST",
+          data: pagination
+        }).done(function (list) {
+          $("#navtotaluser").replaceWith(list);
+          $("#cancleTitle").text("유저 삭제 완료");
+          $("#cancleText").text("성공적으로 삭제 했습니다");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+        }).fail(() => {
+          $("#cancleTitle").text("리스트 로드 실패");
+          $("#cancleText").text("리스트를 가져오는데 실패하였습니다.");
+          $("#cancleBtn").text("확인");
+          $("#cancleModal").modal("toggle");
+        });
+      }
+    </script>
+  </div>
+
+</th:block>
+</html>
